@@ -1,0 +1,11 @@
+// !! DO NOT TOUCH THIS FILE
+apply from: '../../node_modules/@morpheus/core/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-db/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-file/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-media/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-net/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-netext/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-popup/android/library.gradle'
+apply from: '../../node_modules/@morpheus/addon-zip/android/library.gradle'
+apply from: '../../node_modules/@morpheus/plugin-location/android/library.gradle'
+apply from: '../../node_modules/@morpheus/plugin-qr/android/library.gradle'

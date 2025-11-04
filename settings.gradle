@@ -1,0 +1,59 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+//----------local.properties생성 및 편집----------
+def propsFile = new File(rootDir, "local.properties")
+def props = new Properties()
+if (propsFile.exists()) {
+    propsFile.withInputStream { props.load(it) }
+}else{
+    boolean changed = false
+    if (!props.containsKey("assert.dir")) {
+        props.setProperty("assert.dir", "../../assets")
+        changed = true
+    }
+    def osName = System.properties['os.name'].toLowerCase()
+    def homeDir = System.properties['user.home']
+
+    def sdkPath = System.getenv("ANDROID_SDK_ROOT") ?:
+            System.getenv("ANDROID_HOME") ?:
+                    (osName.contains("windows") ? "${homeDir}\\AppData\\Local\\Android\\Sdk"
+                            : osName.contains("mac")     ? "${homeDir}/Library/Android/sdk"
+                            :                             "${homeDir}/Android/Sdk")
+
+    def sdkDirFile = new File(sdkPath)
+    if (sdkDirFile.isDirectory()) {
+        if (!props.containsKey("sdk.dir") || props.getProperty("sdk.dir") != sdkPath) {
+            props.setProperty("sdk.dir", sdkPath)
+            changed = true
+        }
+    } else {
+        logger.lifecycle("[settings.gradle] 경고: SDK 경로가 유효하지 않습니다: ${sdkPath}")
+    }
+
+    if (changed) {
+        propsFile.withOutputStream { out ->
+            props.store(out, null)
+        }
+        logger.lifecycle("[settings.gradle] local.properties 생성/수정 완료: sdk.dir=${props.getProperty("sdk.dir")}, assert.dir=${props.getProperty("assert.dir")}")
+    }
+}
+
+//rootProject.name = "Morpheus"
+include ':app'
+project(':app').projectDir = file('./android/app')

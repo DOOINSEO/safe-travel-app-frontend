@@ -1,0 +1,45 @@
+{
+  "name": "iitp_swedu",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cd web && vite --host",
+    "build": "vite build --config web/vite.config.js",
+    "preview": "vite preview --config web/vite.config.js",
+    "tailwind:init": "tailwindcss init -p",
+    "lint": "eslint -c web/eslint.config.js --max-warnings 0",
+    "sync": "morpheus sync",
+    "postinstall": "morpheus sync"
+  },
+  "dependencies": {
+    "@morpheus/addon-db": "file:.morpheus/libs/morpheus-addon-db-2.14.16.tgz",
+    "@morpheus/addon-file": "file:.morpheus/libs/morpheus-addon-file-2.14.25.tgz",
+    "@morpheus/addon-media": "file:.morpheus/libs/morpheus-addon-media-2.15.52.tgz",
+    "@morpheus/addon-net": "file:.morpheus/libs/morpheus-addon-net-2.14.27.tgz",
+    "@morpheus/addon-netext": "file:.morpheus/libs/morpheus-addon-netext-2.14.41.tgz",
+    "@morpheus/addon-popup": "file:.morpheus/libs/morpheus-addon-popup-2.14.37.tgz",
+    "@morpheus/addon-zip": "file:.morpheus/libs/morpheus-addon-zip-2.14.7.tgz",
+    "@morpheus/core": "file:.morpheus/libs/morpheus-core-2.18.81.tgz",
+    "@morpheus/plugin-location": "file:.morpheus/libs/morpheus-plugin-location-2.10.12.tgz",
+    "@morpheus/plugin-qr": "file:.morpheus/libs/morpheus-plugin-qr-2.15.32.tgz",
+    "@tailwindcss/vite": "^4.1.16",
+    "lucide-react": "^0.548.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.9.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@morpheus/cli": "file:.morpheus/libs/morpheus-cli-1.2.7.tgz",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "tailwindcss": "^4.1.16",
+    "vite": "^6.3.5"
+  }
+}

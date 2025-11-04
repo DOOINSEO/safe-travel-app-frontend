@@ -1,0 +1,107 @@
+plugins {
+    id 'com.android.application'
+}
+
+apply from: 'morpheus.gradle'
+
+
+def assetDir = "../../assets"
+def properties = new Properties()
+if (project.rootProject.file('local.properties').exists()) {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    assetDir = properties.getProperty("asset.dir", "../../assets")
+}
+
+
+android {
+    compileSdk 35
+    namespace 'mcore.mobile.app'
+    useLibrary 'org.apache.http.legacy'
+    defaultConfig {
+        // Sync Your License
+        applicationId "mcore.edu.asdf"
+        minSdk 21
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs = [assetDir, './src/main/assets']
+            jniLibs {
+                srcDir 'libs'
+            }
+        }
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        exclude "META-INF/LICENSE"
+        exclude "META-INF/DEPENDENCIES"
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    if (KEYSTORE_PATH?.trim()) {
+        signingConfigs{
+            releaseWithSignedKey {
+                storeFile file(KEYSTORE_PATH)
+                storePassword KEYSTORE_PW
+                keyAlias KEYSTORE_ALIAS
+                keyPassword KEYSTORE_ALIAS_PW
+            }
+        }
+    }
+    buildFeatures {
+        buildConfig = true
+    }
+    buildTypes {
+        release {
+            //minifyEnabled true
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'morpheus_proguard-project.txt'
+            if (KEYSTORE_PATH?.trim()) {
+                signingConfig signingConfigs.releaseWithSignedKey
+            }
+        }
+    }
+}
+
+dependencies {
+    /**
+     * ==============================================================
+     * 외부라이브러리 적용시  [example.aar file 을 libs 폴더에 위치]
+     *  implementation fileTree(dir: 'libs', include: 'example.aar')
+     * ===============================================================
+     */
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+}
+
+
+/**
+ * =====================================================================
+ *  gradle로 실행할 수 있도록 task 추가
+ * =====================================================================
+ **/
+import org.apache.tools.ant.taskdefs.condition.Os
+task printAllVariants {
+    doLast {
+        android.applicationVariants.all { variant ->
+            println variant.name.capitalize()
+        }
+    }
+}
+
+apply from: 'default_task.gradle'

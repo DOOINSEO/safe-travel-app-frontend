@@ -1,0 +1,7 @@
+{
+  "legacyJsOutPut": "web/public/js",
+  "projectName": "iitp_swedu",
+  "androidPackageName": "mcore.edu.asdf",
+  "androidAppName": "asdf",
+  "applicationId": "mcore.edu"
+}
