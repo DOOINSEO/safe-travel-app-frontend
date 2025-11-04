@@ -1,18 +1,25 @@
-import { Routes, Route } from 'react-router-dom';
-import TempHomePage from './pages/TempHomePage';
-import BoardPage from './pages/BoardPage';
+import {Routes, Route} from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import Map from './pages/Map';
+import Board from './pages/Board';
+import Pictogram from './pages/Pictogram';
+import Notification from './pages/Notification';
 import MyPage from './pages/MyPage';
-import PictogramPage from './pages/PictogramPage';
 
 function App() {
-    return (
-        <Routes>
-            <Route path="/" element={<TempHomePage />} />
-            <Route path="/board" element={<BoardPage />} />
-            <Route path="/mypage" element={<MyPage />} />
-            <Route path="/pictogram" element={<PictogramPage />} />
-        </Routes>
-    );
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/map" element={<Map />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="/pictogram" element={<Pictogram />} />
+        <Route path="/notification" element={<Notification />} />
+        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/myinfo" element={<MyPage />} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;

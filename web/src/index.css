@@ -1,2 +1,13 @@
-/* web/src/index.css */
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* 기본 스타일 */
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Pretendard', sans-serif, 'Roboto';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
