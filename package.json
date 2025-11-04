@@ -42,5 +42,6 @@
     "tailwindcss": "^4.1.16",
     "vite": "^6.3.5",
     "vite-plugin-svgr": "^4.5.0"
+
   }
 }
