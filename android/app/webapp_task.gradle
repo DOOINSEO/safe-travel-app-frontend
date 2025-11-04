@@ -1,0 +1,215 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+def viteConfig = file("$rootProject.projectDir/web/vite.config.js")
+def isVite = viteConfig.exists()
+def distDir = isVite ? "dist" : (file("$rootProject.projectDir/web/build").exists() ? "build" : "dist")
+
+def firstDeviceSerial() {
+    def out = new ByteArrayOutputStream()
+    exec {
+        commandLine android.adbExecutable, "devices"
+        standardOutput = out
+        ignoreExitValue = true
+    }
+    def lines = out.toString().readLines().findAll { it ==~ /^[^\s]+\s+device$/ }
+    // "something<tab>device" 꼴의 라인만 필터
+
+    if (!lines) {
+        print("연결된 디바이스가 없습니다.")
+        return ""
+    }
+    return lines[0].replaceFirst(/\s+device$/, "")
+}
+//task buildWebApp(type: Exec) {
+def buildWebApp = tasks.register("buildWebApp", Exec) {
+    def npmPath = null
+    def os = System.getProperty("os.name").toLowerCase()
+
+    if (os.contains("win")) {
+        // Windows 환경: where 명령 사용
+        npmPath = "where npm".execute().text.trim()
+    } else {
+        // Linux/Unix 환경: which 명령 사용
+        npmPath = "which npm".execute().text.trim()
+    }
+
+    // npmPath 검증
+    if (!npmPath) {
+        throw new GradleException("npm command not found. Make sure Node.js is installed and npm is in your PATH.")
+    }
+
+    // 프로젝트 위치 지정
+    def currentDir = "${projectDir}"
+    //workingDir = currentDir + "/../../web"
+    workingDir "$rootDir/web"
+    // 위치 출력
+    logger.lifecycle("[Morpheus] Working Dir : ${workingDir}")
+    logger.lifecycle("[Morpheus] npm path : ${npmPath}")
+
+    if (os.contains("win")) {
+        executable "cmd"
+        //args "/c", "npm install --legacy-peer-deps && npm run build -- --emptyOutDir"
+        args "/c", isVite ?
+                "npm install && npm run build -- --emptyOutDir" :
+                "npm install && npm run build"
+    } else {
+        executable "bash"
+        //args "-lc", "npm install --legacy-peer-deps && npm run build -- --emptyOutDir"
+        args "-lc", isVite ?
+                "npm install && npm run build -- --emptyOutDir" :
+                "npm install && npm run build"
+
+    }
+    //commandLine os.contains("win") ? "cmd" : npmPath, os.contains("win") ? "/c" : "", "npm", "run", "build"
+}
+
+task copyWebToAssets(type: Copy) {
+    //from "$rootDir/web/dist"                 // Vite 기본 출력 디렉터리
+    //into assetDir                            // assetDir = "../../assets" → 실제 root/assets
+    from("${rootProject.projectDir}/web/${distDir}")
+    into("${rootProject.projectDir}/assets")
+}
+// Android 빌드 직전에 항상 Web 자산 복사
+preBuild.dependsOn copyWebToAssets
+
+// 디버깅 빌드
+//task installDebugApp(type: Exec) {
+def installDebugApp = tasks.register("installDebugApp", Exec) {
+    dependsOn(buildWebApp)
+
+    // npm run build가 성공하면 installDebug를 실행
+    logger.lifecycle "[Morpheus] Running installDebug after npm build"
+    def flavorName = android.productFlavors.isEmpty()
+            ? ""
+            : android.productFlavors.collect { it.name.capitalize() }.first()
+    def defaultVariant = flavorName + "Debug"
+    def pickedVariant = providers.gradleProperty("variant").orElse(defaultVariant)
+    def wrapperName = Os.isFamily(Os.FAMILY_WINDOWS) ? "gradlew.bat" : "gradlew"
+    onlyIf {
+        def serial = firstDeviceSerial()
+        if (serial.isEmpty()) {
+            logger.lifecycle("[Morpheus] No devices connected → skipping installDebugApp")
+            return false
+        }
+        true
+    }
+
+    //프로젝트 현재 위치
+    def currentDir = "${projectDir}"
+    //gradlew
+    def gradlePath = currentDir + "/../../gradlew"
+    def file = new File(gradlePath)
+    logger.lifecycle("[Morpheus] gradlew path : ${file.getCanonicalPath()}")
+    def rootDir = projectDir.parentFile.parentFile
+    def gradlewPath = new File(rootDir, wrapperName)
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        gradlewPath.setExecutable(true)
+        logger.lifecycle "[Morpheus] chmod +x ${gradlewPath}"
+    }
+    //mac인 경우, gradlew 퍼미션 처리
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+        gradlewPath.setExecutable(true)
+        logger.lifecycle "[Morpheus] MAC OS  command : chmod +x ${file.getCanonicalPath()}"
+    }
+    def variantName = pickedVariant.get()
+    logger.lifecycle("variantName:${pickedVariant.get()}")
+    dependsOn "assemble${variantName}"
+    tasks.matching {it.name.startsWith('install')}
+
+    def targetTask = "install${variantName}"
+    commandLine gradlewPath.absolutePath, targetTask
+    doLast {
+        logger.lifecycle "[Morpheus] installed${pickedVariant.get()}"
+    }
+}
+
+//안드로이드 앱 실행
+//task executeApp(type: Exec) {
+def executeApp = tasks.register("executeApp", Exec) {
+    dependsOn(installDebugApp)
+
+    onlyIf {
+        def serial = firstDeviceSerial()
+        if (serial.isEmpty()) {
+            logger.lifecycle("[Morpheus] No devices connected → skipping executeApp")
+            return false
+        }
+        true
+    }
+
+    // installDebug 태스크 실행
+    def packageName = android.defaultConfig.applicationId
+    def launcherActivity = packageName + '/' + 'mcore.mobile.app.Startup'
+    def adbExe = android.adbExecutable
+    def serial = firstDeviceSerial()
+
+    // ADB 경로 설정
+    def adbPath = android.getAdbExe().toString()
+    if (adbPath == null) {
+        throw new GradleException("ADB executable not found. Ensure Android SDK is properly configured.")
+    }
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        def launchApp = ['cmd', '/c', adbPath, '-s', serial, 'shell', 'am', 'start', '-n', launcherActivity]
+        commandLine launchApp
+    } else if (Os.isFamily(Os.FAMILY_MAC)) {
+        def launchApp = [adbExe, "-s", serial, "shell", 'am', 'start', '-n', launcherActivity]
+        commandLine launchApp
+    } else {
+        throw new GradleException("Unsupported OS: " + Os.getFamily())
+    }
+}
+// npm build > web 데이터를 assets에 복사 > apk 설치 > 앱 실행
+task ReactProject_AppRunDebug {
+    dependsOn buildWebApp, copyWebToAssets, executeApp
+}
+
+task WebAppProject_AppRunDebug {
+    dependsOn buildWebApp, copyWebToAssets, executeApp
+}
+
+// 디버그 앱 실행 태스크
+//task AppRunDebug {
+tasks.register("AppRunDebug") {
+    dependsOn(executeApp)
+    doLast {
+        def serial = firstDeviceSerial()
+        def adbExe = android.getAdbExe().absolutePath
+        def packageName = android.defaultConfig.applicationId
+
+        def shell = { args -> ["$adbExe", '-s', serial, 'shell'] + args }
+
+        def pid = ''
+        /* 2) PID 탐색 (pidof → ps -A) */
+        (0..<10).each {
+            try { pid = shell(['pidof', packageName]).execute().text.trim() } catch (ignored) {}
+            if (!pid) {
+                def ps = shell(['ps', '-A']).execute().text
+                ps.eachLine { line ->
+                    if (line.contains(packageName)) {
+                        pid = line.split(/\s+/).find { it ==~ /^\d+$/ }; return
+                    }
+                }
+            }
+            if (pid) return
+            sleep 500   // 0.5초 재시도
+        }
+
+        if (!pid) { logger.lifecycle "앱이 실행 중이지 않거나 PID를 찾지 못했습니다."; return }
+        println "> PID: $pid  (device $serial)"
+
+        /* 3) logcat 연결 */
+        def logcat = ["$adbExe", '-s', serial,
+                      'logcat', '--pid=' + pid, '-v', 'time'].execute()
+
+        println "> logcat 연결 완료 – 로그가 바로 아래부터 실시간으로 출력됩니다."
+        println "  (중단: Ctrl-C)"
+
+        /* logcat → 터미널로 그대로 전달 */
+        logcat.consumeProcessOutput(System.out, System.err)
+        logcat.waitFor()          // 사용자가 Ctrl-C 누를 때까지 대기
+    }
+}
+
+// 디버깅 build 후, 설치 > 앱 실행
+task Build_and_AppRunDebug {
+    dependsOn executeApp
+}

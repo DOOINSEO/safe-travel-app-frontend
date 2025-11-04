@@ -1,0 +1,27 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+tasks.register('AppRunDebug', Exec) {
+    def flavorName = android.productFlavors.isEmpty()
+            ? ""
+            : android.productFlavors.collect { it.name.capitalize() }.first()
+    def defaultVariant = flavorName + "Debug"
+    def pickedVariant = providers.gradleProperty("variant").orElse(defaultVariant)
+    def variantName = pickedVariant.get()
+    def targetTask = "install${variantName}"
+    logger.lifecycle("variantName:${variantName}")
+
+    dependsOn targetTask
+    doFirst {
+        def adb = android.getAdbExe().toString()
+        def packageName = android.defaultConfig.applicationId
+        def launcherActivity = "${packageName}/mcore.mobile.app.Startup"
+
+        logger.lifecycle("Launching: $launcherActivity")
+
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', adb, 'shell', 'am', 'start', '-n', launcherActivity
+        } else {
+            commandLine adb, 'shell', 'am', 'start', '-n', launcherActivity
+        }
+    }
+}

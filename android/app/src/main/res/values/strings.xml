@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resources>
+  <!-- 아래 app_package는 반드시 android package 이름과 동일하게 만들어야 한다(DO NOT DELETE !!!)-->
+  <string name="app_package">mcore.mobile.app</string>
+  <string name="app_name">SW인재양성</string>
+  <string name="hello">Hello World, HybridMobileApp!</string>
+  <string name="nbutton1">통신테스트</string>
+  <string name="nbutton2">네이티브화면</string>
+  <string name="nbutton3">UI웹화면</string>
+  <string name="sTitle1">받은 파라메터 데이터</string>
+  <string name="sTitle2">Network error</string>
+  <string name="mp_addon_maxpicker">사진은 총 %d개까지만 첨부 가능합니다.</string>
+</resources>
