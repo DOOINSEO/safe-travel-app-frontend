@@ -19,10 +19,10 @@ function MenuItem({icon, label, onClick}) {
         }
       }}
     >
-      <div className="w-[60px] h-[60px] flex items-center justify-center rounded-[16px] shadow-[0_0_5px_rgba(0,0,0,0.1)] bg-white">
+      <div className="w-[54px] h-[54px] flex items-center justify-center rounded-[16px] shadow-[0_0_5px_rgba(0,0,0,0.1)] bg-white">
         <img src={icon} alt={label} className="w-8 h-8" />
       </div>
-      <span className="text-[12px] font-medium text-black/40">{label}</span>
+      <span className="text-[12px] font-medium text-black/60">{label}</span>
     </div>
   );
 }
@@ -38,7 +38,7 @@ export default function IconMenu() {
   ];
 
   return (
-    <div className="flex items-center justify-between w-full px-[10px]">
+    <div className="flex items-center justify-between w-full px-[15px]">
       {menuItems.map((item, index) => (
         <MenuItem key={index} icon={item.icon} label={item.label} onClick={() => navigate(item.path)} />
       ))}
