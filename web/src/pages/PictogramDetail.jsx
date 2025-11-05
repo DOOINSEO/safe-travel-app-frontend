@@ -84,7 +84,8 @@ export default function PictogramDetail() {
                 <PageHeader title="픽토그램" />
             </div>
 
-            <main className="px-[20px]">
+            <main className="flex flex-col gap-[25px] px-[20px]">
+
                 {/* 언어 검색 및 선택 UI */}
                 <div className="flex items-center gap-2 py-[10px]">
                     {/* 왼쪽: 언어 검색 입력창 */}
@@ -143,7 +144,7 @@ export default function PictogramDetail() {
                 </div>
 
                 {/* 픽토그램 이미지와 번역 텍스트 */}
-                <div className="mt-6 flex flex-col items-center text-center">
+                <div className="flex flex-col items-center text-center">
                     <div className="flex h-[320px] w-[320px] items-center justify-center">
                         <img src={image} alt={korean} className="max-h-full max-w-full object-contain" />
                     </div>
