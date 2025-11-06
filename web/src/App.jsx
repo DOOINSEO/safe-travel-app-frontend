@@ -6,6 +6,8 @@ import Pictogram from './pages/Pictogram';
 import PictogramDetail from './pages/PictogramDetail';
 import Notification from './pages/Notification';
 import MyPage from './pages/MyPage';
+import LogIn from './pages/LogIn';
+import SignUp from './pages/SignUp';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path="/notification" element={<Notification />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/myinfo" element={<MyPage />} />
+          <Route path="/login" element={<LogIn />} />
+          <Route path="/signup" element={<SignUp />} />
       </Routes>
     </>
   );
