@@ -2,6 +2,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Sheet} from 'react-modal-sheet';
 import Header from '../components/home/Header';
 import IconMenu from '../components/home/IconMenu';
+import BottomSheetContent from '../components/home/BottomSheet';
 
 export default function HomePage() {
   const [open, setOpen] = useState(true);
@@ -39,11 +40,13 @@ export default function HomePage() {
             boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.1)',
             borderTopLeftRadius: '28px',
             borderTopRightRadius: '28px',
-            backgroundColor: '#f8f9fa',
+            backgroundColor: '#ffffffff',
           }}
         >
           <Sheet.Header disableDrag style={{display: 'none'}} />
-          <Sheet.Content style={{paddingBottom: 0}}></Sheet.Content>
+          <Sheet.Content style={{paddingBottom: 0}}>
+            <BottomSheetContent />
+          </Sheet.Content>
         </Sheet.Container>
       </Sheet>
     </div>
