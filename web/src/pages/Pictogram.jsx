@@ -37,9 +37,7 @@ export default function Pictogram() {
 
     return (
         <div className="min-h-screen bg-white">
-            <div className="px-[20px] py-2">
-                <PageHeader title="픽토그램" />
-            </div>
+            <PageHeader title="픽토그램" />
 
             <main className="px-[20px]">
                 <CategoryFilter
