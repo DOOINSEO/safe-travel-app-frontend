@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * @description 인증 폼(로그인, 회원가-입)의 메인 제출 버튼입니다.
+ * @description 인증 폼(로그인, 회원가입)의 메인 제출 버튼입니다.
  *              API 요청 중일 때 비활성화되고 '처리 중...' 텍스트를 표시하는 기능을 내장하고 있습니다.
  *
  * @param {object} props - 컴포넌트 props
