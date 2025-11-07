@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {GoogleMap, LoadScript} from '@react-google-maps/api';
 import SafetyPolygon from '../components/map/polygons/SafetyPolygon';
-import SafetyBadge from '../components/map/bottomsheet/SafetyBadge';
 import MapBottomSheet from '../components/map/bottomsheet/MapBottomSheet';
 import gadmData from '../data/map/gadm41_KHM_1.json';
 import {convertGADMToPolygons} from '../utils/map/geojsonConverter';
@@ -65,10 +64,12 @@ const samplePolygons = convertedPolygons.map((polygon) => ({
 
 export default function Map() {
   const [selectedPolygon, setSelectedPolygon] = useState(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const handlePolygonClick = (polygonData) => {
     setSelectedPolygon(polygonData);
-    console.log('선택된 폴리곤:', polygonData); //선택된 폴리곤 데이터
+    setIsBottomSheetOpen(true);
+    console.log('선택된 폴리곤:', polygonData);
   };
 
   return (
@@ -87,17 +88,12 @@ export default function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* 선택된 폴리곤 데이터 표시 */}
-      {selectedPolygon && (
-        <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="font-bold text-lg">{selectedPolygon.nameKo}</h3>
-          <p className="text-sm text-gray-600 mb-3">{selectedPolygon.name}</p>
-          <SafetyBadge level={selectedPolygon.level} size="md" showLevel={true} />
-        </div>
-      )}
-
       {/* 바텀시트 */}
-      <MapBottomSheet />
+      <MapBottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        selectedPolygon={selectedPolygon}
+      />
     </div>
   );
 }
