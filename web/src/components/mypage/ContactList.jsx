@@ -1,20 +1,8 @@
 import React, { useState } from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import { addContact, deleteContact } from '../../services/accountApi';
-
-/**
- * @description 전화번호 문자열에 하이픈(-)을 자동으로 추가하여 사용자에게 보여주는 형식으로 변환합니다.
- *              이 함수는 UI 표현을 위한 유틸리티이며, 컴포넌트 내부에 위치하여 이 컴포넌트에서만 사용됩니다.
- * @param {string} value - 숫자만 있는 전화번호 문자열 (예: "01012345678")
- * @returns {string} 하이픈이 추가된 전화번호 문자열 (예: "010-1234-5678")
- */
-const formatPhoneNumber = (value) => {
-    if (!value) return '';
-    const phoneNumber = value.replace(/[^0-9]/g, '');
-    if (phoneNumber.length < 4) return phoneNumber;
-    if (phoneNumber.length < 8) return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
-    return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
-};
+// 유틸리티 함수를 import 합니다.
+import { formatPhoneNumber } from '../../utils/formatter';
 
 /**
  * @description '내 정보' 페이지에서 비상 연락처 목록을 표시하고, 추가/삭제하는 UI와 로직을 모두 담당하는 컴포넌트입니다.

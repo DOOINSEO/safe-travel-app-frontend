@@ -1,28 +1,46 @@
 /**
- * @file 사용자 계정 정보(연락처, 메시지 등)와 관련된 모든 서버 통신(API 요청)을 중앙에서 관리하는 모듈입니다.
+ * @file 사용자 계정 정보(프로필, 연락처, 메시지 등)와 관련된 모든 서버 통신(API 요청)을 중앙에서 관리하는 모듈입니다.
  *       이 파일은 '서비스 계층(Service Layer)'으로서, UI 컴포넌트와 백엔드 서버 사이의 중개자 역할을 합니다.
  *       컴포넌트는 이 파일의 함수를 호출하기만 하면 되고, 실제 API 엔드포인트나 데이터 구조에 대해서는 알 필요가 없습니다.
  */
 
 // --- API 기본 설정 ---
 // TODO: 백엔드 개발이 완료되면 실제 서버의 기본 URL로 변경해야 합니다.
-const API_BASE_URL = '/api/account';
+// eslint-disable-next-line no-unused-vars
+const API_BASE_URL = '/api';
 
 // --- 데이터 변환 함수 ---
 // 백엔드와 프론트엔드의 데이터 구조 차이를 여기서 흡수합니다.
 
 /**
- * @description 서버 응답 데이터를 프론트엔드에 맞게 변환합니다. (예: snake_case -> camelCase)
+ * @description '내 정보' 페이지에 필요한 서버 응답 데이터를 프론트엔드용으로 변환합니다.
  * @param {object} serverData - 백엔드로부터 받은 원본 데이터
  * @returns {object} 프론트엔드에서 사용할 데이터
  */
-const transformUserData = (serverData) => {
+const transformMyPageData = (serverData) => {
     // --- ⚙️ 백엔드 DB 컬럼명 또는 JSON 키 변경 시 수정 지점 ⚙️ ---
-    // 백엔드의 응답 데이터 키가 변경되면 이 부분만 수정하면 됩니다.
-    // 예: serverData.user_contacts -> serverData.emergency_contacts
     return {
         contacts: serverData.contacts || [],
         emergencyMessage: serverData.emergency_message || '',
+    };
+};
+
+/**
+ * @description '계정 관리' 페이지에 필요한 서버 응답 데이터(회원 정보)를 프론트엔드용으로 변환합니다.
+ * @param {object} serverData - 백엔드로부터 받은 원본 데이터
+ * @returns {object} 프론트엔드에서 사용할 데이터 (예: nickname)
+ */
+const transformUserProfile = (serverData) => {
+    // --- ⚙️ 백엔드 DB 컬럼명 또는 JSON 키 변경 시 수정 지점 ⚙️ ---
+    const { body } = serverData;
+    return {
+        id: body.id,
+        loginId: body.loginId,
+        name: body.name,
+        phone: body.phone,
+        nickname: body.nickname,
+        alarmEnabled: body.alarmEnabled,
+        role: body.role,
     };
 };
 
@@ -30,26 +48,53 @@ const transformUserData = (serverData) => {
 // --- API 요청 함수 (실제 통신 로직) ---
 
 /**
- * @description 서버에서 사용자의 연락처 목록과 비상 메시지를 가져옵니다.
- * @returns {Promise<{contacts: string[], emergencyMessage: string}>} 변환된 사용자 데이터
+ * @description 서버에서 '내 정보' 페이지에 필요한 데이터(연락처, 메시지)를 가져옵니다.
+ * @returns {Promise<{contacts: string[], emergencyMessage: string}>}
  */
 export const getUserAccountData = async () => {
-    // TODO: 실제 API 로직 (주석 해제 후 사용)
-    // const response = await fetch(`${API_BASE_URL}/user-data`);
-    // if (!response.ok) throw new Error('사용자 정보를 불러오는데 실패했습니다.');
+    // TODO: 실제 API 엔드포인트로 수정. 예: `${API_BASE_URL}/account/my-page-data`
+    // const response = await fetch(...);
     // const serverData = await response.json();
-    // return transformUserData(serverData);
+    // return transformMyPageData(serverData);
 
     // --- 백엔드 구현 전 임시 데이터 ---
     console.log('API: getUserAccountData 호출됨 (임시 데이터 반환)');
     await new Promise(resolve => setTimeout(resolve, 500));
-
-    // [수정] 임시 데이터도 transformUserData 함수를 거치도록 하여 경고를 해결하고 일관성을 유지합니다.
     const mockServerData = {
         contacts: ['010-1234-5678', '010-1111-2222'],
         emergency_message: "여기에 기존에 저장되어 있던 비상 메시지가 표시됩니다."
     };
-    return transformUserData(mockServerData);
+    return transformMyPageData(mockServerData);
+};
+
+/**
+ * @description 특정 사용자의 상세 프로필 정보를 서버에 요청합니다. (계정 관리 페이지용)
+ * @param {string} userId - 조회할 사용자의 ID
+ * @returns {Promise<object>} 변환된 사용자 프로필 데이터
+ */
+export const getUserProfile = async (userId) => {
+    // TODO: 실제 API 엔드포인트로 수정. 예: `${API_BASE_URL}/user/${userId}`
+    // const response = await fetch(...);
+    // const serverData = await response.json();
+    // return transformUserProfile(serverData);
+
+    // --- 백엔드 구현 전 임시 데이터 ---
+    console.log(`API: getUserProfile 호출됨, userId: ${userId}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const mockServerData = {
+        isSuccess: true,
+        message: "성공",
+        body: {
+            id: 1,
+            loginId: "testuser",
+            name: "홍길동",
+            phone: "010-1234-5678",
+            nickname: "길동이",
+            alarmEnabled: true,
+            role: "USER"
+        }
+    };
+    return transformUserProfile(mockServerData);
 };
 
 /**
@@ -84,3 +129,5 @@ export const saveEmergencyMessage = async (message) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true };
 };
+
+// ... (향후 logout, updateUserProfile, updatePassword 등 다른 API 함수들을 여기에 추가할 수 있습니다)
