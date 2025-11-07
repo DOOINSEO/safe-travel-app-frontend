@@ -1,162 +1,136 @@
 import React, { useState, useEffect } from 'react';
 import { AuthInput } from '../auth/AuthInput';
-// [추가] formatPhoneNumber 함수를 import 합니다.
+import AlertModal from '../common/AlertModal';
+import { updateUserProfile } from '../../services/accountApi';
 import { formatPhoneNumber } from '../../utils/formatter';
-// TODO: accountApi.js에 updateUserProfile 함수를 만들어 import 해야 합니다.
-// import { updateUserProfile } from '../../services/accountApi';
 
 /**
- * @description 사용자 개인정보(아이디, 이름, 닉네임, 전화번호)를 수정하는 폼 컴포넌트입니다.
- *              '수정 모드' 상태를 통해 일반 보기 모드와 편집 모드를 전환할 수 있습니다.
- * @param {object} props - 컴포넌트 props
- * @param {object} props.initialProfile - 부모 컴포넌트로부터 전달받은 초기 사용자 프로필 데이터
+ * 사용자 프로필을 표시하고 수정하는 폼 컴포넌트입니다.
+ * '조회 모드'와 '수정 모드'를 내부적으로 관리하며, 알림은 인앱 모달을 사용합니다.
+ * @param {{ initialProfile: object | null }} props
  */
 export default function UserProfileForm({ initialProfile }) {
-    // --- 컴포넌트 상태 정의 ---
+    // '조회/수정' 모드를 제어하는 상태
     const [isEditing, setIsEditing] = useState(false);
-    const [loginId, setLoginId] = useState(initialProfile.loginId || '');
-    const [name, setName] = useState(initialProfile.name || '');
-    const [nickname, setNickname] = useState(initialProfile.nickname || '');
-    const [phone, setPhone] = useState(initialProfile.phone || '');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState(null);
 
-    // initialProfile이 변경될 때 상태를 동기화하는 로직
+    // 폼 필드 상태
+    const [loginId, setLoginId] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState(''); // 상태에는 항상 순수 숫자만 저장
+    const [nickname, setNickname] = useState('');
+    const [alarmEnabled, setAlarmEnabled] = useState(false);
+
+    // 알림 모달을 제어하는 상태
+    const [alertInfo, setAlertInfo] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+    });
+
+    // 외부에서 받은 프로필 데이터가 변경되면 폼 상태를 업데이트
     useEffect(() => {
-        setLoginId(initialProfile.loginId || '');
-        setName(initialProfile.name || '');
-        setNickname(initialProfile.nickname || '');
-        setPhone(initialProfile.phone || '');
+        if (initialProfile) {
+            setLoginId(initialProfile.loginId ?? '');
+            setName(initialProfile.name ?? '');
+            setPhone(initialProfile.phone?.replace(/[^0-9]/g, '') ?? '');
+            setNickname(initialProfile.nickname ?? '');
+            setAlarmEnabled(initialProfile.alarmEnabled ?? false);
+            setPassword('');
+        }
     }, [initialProfile]);
 
-    /**
-     * @description 전화번호 입력 시 숫자만 남기는 핸들러 함수입니다.
-     */
+    /** 휴대폰 번호 입력 시 숫자만 상태에 저장하는 핸들러 */
     const handlePhoneChange = (e) => {
         const numericValue = e.target.value.replace(/[^0-9]/g, '');
-        // 11자리를 초과하는 입력은 막습니다.
         if (numericValue.length <= 11) {
             setPhone(numericValue);
         }
     };
 
-    /**
-     * @description '저장' 버튼 클릭 시, 변경된 프로필 정보를 서버에 전송하는 핸들러 함수입니다.
-     */
-    const handleProfileUpdate = async (e) => {
+    /** '취소' 버튼 클릭 시 변경사항을 되돌리고 조회 모드로 전환 */
+    const handleCancel = () => {
+        if (initialProfile) {
+            setLoginId(initialProfile.loginId ?? '');
+            setName(initialProfile.name ?? '');
+            setPhone(initialProfile.phone?.replace(/[^0-9]/g, '') ?? '');
+            setNickname(initialProfile.nickname ?? '');
+            setAlarmEnabled(initialProfile.alarmEnabled ?? false);
+            setPassword('');
+        }
+        setIsEditing(false);
+    };
+
+    /** '저장' 버튼 클릭 시 API를 호출하여 정보 업데이트 */
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setError(null);
-
         try {
-            const formattedPhone = formatPhoneNumber(phone); // 전송 전에 포맷팅
+            const dataToUpdate = { loginId, name, phone, nickname, alarmEnabled };
+            if (password) {
+                dataToUpdate.password = password;
+            }
 
-            // --- ⚙️ 백엔드 연동: 개인정보 수정 ⚙️ ---
-            // TODO: 'accountApi.js'에 실제 사용자 정보를 수정하는 API 함수를 만들고 여기서 호출해야 합니다.
-            //       이때 formattedPhone 변수를 전달해야 합니다.
-            // const updatedProfile = await updateUserProfile({ loginId, name, nickname, phone: formattedPhone });
+            await updateUserProfile(initialProfile.id, dataToUpdate);
 
-            // [수정] phone 대신 formattedPhone을 사용하도록 변경합니다.
-            console.log("수정할 프로필 정보:", { loginId, name, nickname, phone: formattedPhone });
-
-            alert("프로필 정보가 성공적으로 수정되었습니다.");
-            setIsEditing(false);
-
-        } catch (err) {
-            console.error("프로필 수정 실패:", err);
-            setError(err.message || "정보 수정에 실패했습니다.");
-        } finally {
-            setIsSubmitting(false);
+            setAlertInfo({ isOpen: true, title: '성공', message: '프로필이 성공적으로 저장되었습니다.' });
+            setIsEditing(false); // 저장 후 조회 모드로 전환
+        } catch (error) {
+            console.error('프로필 저장 실패:', error);
+            setAlertInfo({ isOpen: true, title: '오류', message: error.message || '저장에 실패했습니다.' });
         }
     };
 
-    /**
-     * @description '취소' 버튼 클릭 시, 모든 변경사항을 되돌리고 '보기 모드'로 전환합니다.
-     */
-    const handleCancel = () => {
-        setLoginId(initialProfile.loginId || '');
-        setName(initialProfile.name || '');
-        setNickname(initialProfile.nickname || '');
-        setPhone(initialProfile.phone || '');
-        setIsEditing(false);
-        setError(null);
-    };
-
     return (
-        // 컴포넌트 스스로 좌우 여백(px-[40px])을 관리합니다.
-        <form onSubmit={handleProfileUpdate} className="px-[40px]">
-            <div className="flex flex-col gap-[25px]">
-                <AuthInput
-                    id="loginId"
-                    label="아이디"
-                    type="text"
-                    value={loginId}
-                    onChange={(e) => setLoginId(e.target.value)}
-                    disabled={!isEditing}
-                />
-                <AuthInput
-                    id="name"
-                    label="이름"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={!isEditing}
-                />
-                <AuthInput
-                    id="nickname"
-                    label="닉네임"
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    disabled={!isEditing}
-                />
-                <AuthInput
-                    id="phone"
-                    label="전화번호"
-                    type="tel"
-                    placeholder="전화번호 입력"
-                    // 화면에는 포맷팅된 값이 보이도록 value를 수정합니다.
-                    value={formatPhoneNumber(phone)}
-                    // 입력 처리는 숫자만 받는 핸들러로 변경합니다.
-                    onChange={handlePhoneChange}
-                    disabled={!isEditing}
-                />
-            </div>
+        <>
+            <form onSubmit={handleSubmit} className="flex w-full flex-col items-center px-[20px]">
+                <div className="flex w-full flex-col items-center gap-6">
+                    <AuthInput id="loginId" label="아이디" value={loginId} onChange={(e) => setLoginId(e.target.value)} disabled={!isEditing} />
+                    <AuthInput
+                        id="password"
+                        label="비밀번호"
+                        type="password"
+                        placeholder={isEditing ? '' : '********'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    <AuthInput id="name" label="실명" value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} />
+                    <AuthInput id="nickname" label="닉네임" value={nickname} onChange={(e) => setNickname(e.target.value)} disabled={!isEditing} />
+                    <AuthInput
+                        id="phone"
+                        label="휴대폰번호"
+                        type="tel"
+                        placeholder="010-0000-0000"
+                        value={formatPhoneNumber(phone)}
+                        onChange={handlePhoneChange}
+                        disabled={!isEditing}
+                    />
 
-            {/* 에러 메시지 표시 영역 */}
-            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
-
-            {/* --- [핵심 수정] 사라졌던 버튼 렌더링 로직을 다시 추가합니다. --- */}
-            <div className="mt-8">
-                {isEditing ? (
-                    // 수정 모드일 때: 취소/저장 버튼
-                    <div className="flex gap-x-4">
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                            className="h-[56px] flex-1 rounded-full bg-gray-200 text-gray-800 font-semibold transition-colors hover:bg-gray-300"
-                        >
-                            취소
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="h-[56px] flex-1 rounded-full bg-black text-white font-semibold transition-colors hover:bg-gray-800 disabled:bg-gray-400"
-                        >
-                            {isSubmitting ? '저장 중...' : '저장'}
-                        </button>
+                    <div className="flex w-full items-center gap-2">
+                        <input type="checkbox" id="alarmEnabled" checked={alarmEnabled} onChange={(e) => setAlarmEnabled(e.target.checked)} disabled={!isEditing} className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black disabled:bg-gray-200" />
+                        <label htmlFor="alarmEnabled" className="text-sm text-gray-700">안전 관련 알림 수신</label>
                     </div>
-                ) : (
-                    // 보기 모드일 때: 회원정보 수정하기 버튼
-                    <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        className="h-[56px] w-full rounded-full bg-black text-white font-semibold transition-colors hover:bg-gray-800"
-                    >
-                        회원정보 수정하기
-                    </button>
-                )}
-            </div>
-        </form>
+                </div>
+
+                <div className="mt-8 w-full">
+                    {isEditing ? (
+                        <div className="flex w-full gap-x-4">
+                            <button type="button" onClick={handleCancel} className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-bold text-gray-700">취소</button>
+                            <button type="submit" className="flex-1 rounded-lg bg-black py-3 text-base font-bold text-white">저장</button>
+                        </div>
+                    ) : (
+                        <button type="button" onClick={() => setIsEditing(true)} className="w-full rounded-lg bg-black py-3 text-base font-bold text-white">회원정보 수정하기</button>
+                    )}
+                </div>
+            </form>
+
+            <AlertModal
+                isOpen={alertInfo.isOpen}
+                onClose={() => setAlertInfo({ isOpen: false, title: '', message: '' })}
+                title={alertInfo.title}
+            >
+                {alertInfo.message}
+            </AlertModal>
+        </>
     );
 }

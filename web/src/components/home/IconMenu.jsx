@@ -32,7 +32,7 @@ export default function IconMenu() {
 
   const menuItems = [
     {icon: IconMap, label: '안전 지도', path: '/map'},
-    {icon: IconMessage, label: '자동 문자 작성', path: '/myinfo'},
+    {icon: IconMessage, label: '자동 문자 작성', path: '/mypage'},
     {icon: IconBoard, label: '안전 게시판', path: '/board'},
     {icon: IconPictogram, label: '픽토그램', path: '/pictogram'},
   ];
