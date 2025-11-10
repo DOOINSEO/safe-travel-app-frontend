@@ -1,40 +1,34 @@
-import React, {useState} from 'react';
+/**
+ * @file '계정 관리' 페이지의 회원탈퇴 및 로그아웃 액션 버튼을 제공합니다.
+ *       [수정] 로그아웃 시 확인 절차 없이 즉시 실행되도록 변경되었습니다.
+ */
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '../common/ConfirmModal';
-// TODO: accountApi.js에 logout, deleteAccount 함수를 만들어 import 해야 합니다.
-// import { logout, deleteAccount } from '../../services/accountApi';
 
-/**
- * @description '계정 관리' 페이지 하단에 위치하는 회원탈퇴 및 로그아웃 액션 버튼들을 제공하는 컴포넌트입니다.
- *              각 액션은 사용자 확인 절차를 포함하여 실수를 방지합니다.
- */
 export default function AccountActions() {
     const navigate = useNavigate();
-    // 모달의 노출 여부를 관리하는 상태 추가
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     /**
-     * @description '로그아웃' 버튼 클릭 시 실행될 핸들러 함수입니다.
+     * @description '로그아웃' 버튼 클릭 시 즉시 로그아웃 로직을 실행하는 핸들러 함수입니다.
      */
     const handleLogout = async () => {
-        // 사용자에게 로그아웃 여부를 다시 한번 확인합니다.
-        if (window.confirm("정말 로그아웃 하시겠습니까?")) {
-            try {
-                // --- ⚙️ 백엔드 연동: 로그아웃 ⚙️ ---
-                // TODO: 'accountApi.js'에 실제 로그아웃 API를 호출하는 함수를 만들고 여기서 호출합니다.
-                // await logout();
+        try {
+            // [수정] window.confirm 확인 절차를 제거했습니다.
+            // --- ⚙️ 백엔드 연동: 로그아웃 ⚙️ ---
+            // TODO: 'accountApi.js'에 실제 로그아웃 API를 호출하는 함수를 만들고 여기서 호출합니다.
+            // await logout();
 
-                // TODO: localStorage 등에 저장된 토큰이나 사용자 정보를 제거하는 로직이 필요합니다.
-                // localStorage.removeItem('accessToken');
+            // TODO: localStorage 등에 저장된 토큰이나 사용자 정보를 제거합니다.
+            // localStorage.removeItem('accessToken');
 
-                console.log("로그아웃 성공");
-                alert("로그아웃 되었습니다.");
-                // 로그아웃 성공 후, 로그인 페이지로 이동합니다.
-                navigate('/login');
-            } catch (err) {
-                console.error("로그아웃 실패:", err);
-                alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
-            }
+            console.log("즉시 로그아웃 실행");
+            // alert("로그아웃 되었습니다."); // [선택적 제거] 즉각적인 이동을 위해 alert도 제거할 수 있습니다.
+            navigate('/login'); // 로그아웃 성공 후, 로그인 페이지로 즉시 이동합니다.
+        } catch (err) {
+            console.error("로그아웃 실패:", err);
+            alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
         }
     };
 
