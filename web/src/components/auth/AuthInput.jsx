@@ -14,7 +14,6 @@ export const AuthInput = React.forwardRef(({ id, label, ...props }, ref) => {
             <input
                 id={id}
                 ref={ref}
-                // [핵심 수정] disabled 상태에 대한 스타일을 직접 추가합니다.
                 className="mt-1 block h-[48px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400
                            focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500
                            disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
