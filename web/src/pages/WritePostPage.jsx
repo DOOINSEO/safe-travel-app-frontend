@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import { useWriteForm } from '../hooks/useWriteForm';
@@ -16,31 +15,53 @@ function FilterDropdown({ label }) {
 }
 
 export default function WritePostPage() {
-    const navigate = useNavigate();
     const { formData, handleChange, handleSubmit, isSubmitting, error } = useWriteForm();
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <PageHeader title="게시물 작성하기" backPath="/board" />
 
             <form onSubmit={handleSubmit}>
                 <main className="p-4">
-                    <div className="mb-4 text-sm">
-                        <p>작성자 <span className="font-semibold">Jueon</span></p>
-                        <p>작성날짜 <span className="font-semibold">2025.04.25</span></p>
+                    {/* 작성자/날짜 정보 UI */}
+                    <div className="mb-4 space-y-1 text-sm text-gray-500">
+                        <div className="flex">
+                            <span className="w-16 flex-shrink-0">작성자</span>
+                            <span className="font-semibold text-gray-800">Jueon</span>
+                        </div>
+                        <div className="flex">
+                            <span className="w-16 flex-shrink-0">작성날짜</span>
+                            <span className="font-semibold text-gray-800">2025.04.25</span>
+                        </div>
                     </div>
 
-                    <div className="mb-4 flex gap-2">
-                        <FilterDropdown label="국가 선택" />
-                        <FilterDropdown label="지역 선택" />
-                        <FilterDropdown label="카테고리" />
+                    {/* 위치 및 카테고리 선택 UI */}
+                    <div className="space-y-2">
+                        <div className="flex h-[52px] w-full items-center rounded-lg border border-gray-300 bg-white">
+                            <div className="relative flex flex-1 cursor-pointer items-center justify-between px-4">
+                                <span className="text-sm">캄보디아</span>
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                            </div>
+                            <div className="h-full w-px bg-gray-200"></div>
+                            <div className="flex-1 px-4">
+                                <input
+                                    type="text"
+                                    placeholder="시엠레아프"
+                                    className="w-full bg-transparent text-sm placeholder-gray-500 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                        <div className="relative flex h-[52px] w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4">
+                            <span className="text-sm text-gray-500">카테고리</span>
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                        </div>
                     </div>
 
                     <textarea
                         name="content"
                         value={formData.content}
                         onChange={handleChange}
-                        className="h-40 w-full rounded-lg border border-gray-300 p-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="mt-4 h-40 w-full rounded-lg border border-gray-300 p-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="내용을 입력해주세요."
                         required
                     ></textarea>

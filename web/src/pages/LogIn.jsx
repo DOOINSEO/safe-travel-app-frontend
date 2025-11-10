@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthInput } from '../components/auth/AuthInput';
 import AuthButton from '../components/auth/AuthButton';
-import { useLogin } from '../hooks/useLogin'; // 커스텀 훅 import
+import { useLogin } from '../hooks/useLogin';
 
 /**
  * 사용자 로그인을 위한 UI를 렌더링하는 페이지 컴포넌트입니다.
