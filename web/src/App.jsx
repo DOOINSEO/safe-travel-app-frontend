@@ -2,6 +2,7 @@ import {Routes, Route} from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import Map from './pages/Map';
 import Board from './pages/Board';
+import WritePostPage from './pages/WritePostPage';
 import Pictogram from './pages/Pictogram';
 import PictogramDetail from './pages/PictogramDetail';
 import Notification from './pages/Notification';
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/map" element={<Map />} />
           <Route path="/board" element={<Board />} />
+          <Route path="/board/write" element={<WritePostPage />} />
           <Route path="/pictogram" element={<Pictogram />} />
           <Route path="/pictogram/:id" element={<PictogramDetail />} />
           <Route path="/notification" element={<Notification />} />
