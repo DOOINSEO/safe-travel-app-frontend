@@ -1,5 +1,3 @@
-// src/pages/LogIn.jsx (Refactored)
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';
@@ -9,7 +7,6 @@ import { useLogin } from '../hooks/useLogin'; // 커스텀 훅 import
 
 /**
  * 사용자 로그인을 위한 UI를 렌더링하는 페이지 컴포넌트입니다.
- * 실제 로그인 로직은 `useLogin` 훅에 위임합니다.
  */
 export default function LogIn() {
     const navigate = useNavigate();

@@ -1,5 +1,3 @@
-// src/components/mypage/AddContactForm.jsx
-
 import React, { useState } from 'react';
 import { formatPhoneNumber } from '../../utils/formatter';
 
@@ -8,7 +6,7 @@ import { formatPhoneNumber } from '../../utils/formatter';
  * @param {{ onSave: (newContact: string) => void, onCancel: () => void }} props
  */
 export default function AddContactForm({ onSave, onCancel }) {
-    const [newContact, setNewContact] = useState(''); // 순수 숫자만 저장
+    const [newContact, setNewContact] = useState('');
 
     /** 입력 시 숫자만 허용하고, 최대 11자리로 제한합니다. */
     const handleInputChange = (e) => {
@@ -23,7 +21,7 @@ export default function AddContactForm({ onSave, onCancel }) {
             alert('올바른 형식의 연락처를 입력해주세요.');
             return;
         }
-        onSave(newContact); // 부모에게 순수 숫자 값을 전달
+        onSave(newContact);
     };
 
     return (

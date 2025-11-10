@@ -1,5 +1,3 @@
-// src/services/authApi.js
-
 import { apiClient } from './apiClient';
 
 const transformLoginData = (serverData) => ({

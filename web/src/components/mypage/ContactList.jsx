@@ -1,5 +1,3 @@
-// src/components/mypage/ContactList.jsx
-
 import React, { useState } from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import { addContact, deleteContact } from '../../services/accountApi';

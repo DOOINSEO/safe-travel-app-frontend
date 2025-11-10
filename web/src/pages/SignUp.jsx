@@ -1,5 +1,3 @@
-// src/pages/SignUp.jsx (Refactored)
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';

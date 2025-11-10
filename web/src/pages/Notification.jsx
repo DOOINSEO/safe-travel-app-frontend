@@ -1,6 +1,5 @@
 /**
  * @file 앱의 알림 목록을 표시하는 UI 컴포넌트입니다.
- *       [수정] 양방향 스와이프 삭제 기능과 단일화된 '안전단계변경' 카테고리를 적용했습니다.
  */
 
 import React, { useState } from 'react';
@@ -58,12 +57,10 @@ export default function Notification() {
     );
 }
 
-// --- [수정된 NotificationItem 컴포넌트] ---
 // 개별 알림 아이템 UI 및 스와이프 제스처를 처리합니다.
 function NotificationItem({ item, onRemove }) {
     const swipeConfidenceThreshold = 100;
 
-    // [수정 1] 각 아이템이 자신의 스와이프 방향을 기억하도록 내부 state를 추가합니다.
     const [dragDirection, setDragDirection] = useState(null);
 
     return (
@@ -71,7 +68,6 @@ function NotificationItem({ item, onRemove }) {
             layout
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            // [수정 2] prop(item) 대신 내부 state(dragDirection)를 사용하여 exit 방향을 결정합니다.
             exit={{
                 opacity: 0,
                 x: dragDirection === 'left' ? "-100%" : "100%",
@@ -89,7 +85,6 @@ function NotificationItem({ item, onRemove }) {
                 dragConstraints={{ left: 0, right: 0 }}
                 onDragEnd={(event, info) => {
                     if (Math.abs(info.offset.x) > swipeConfidenceThreshold) {
-                        // [수정 3] prop을 직접 수정하는 대신, 내부 state를 업데이트합니다.
                         const direction = info.offset.x < 0 ? 'left' : 'right';
                         setDragDirection(direction);
                         onRemove(item.id);

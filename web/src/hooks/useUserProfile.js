@@ -1,5 +1,3 @@
-// src/hooks/useUserProfile.js
-
 import { useState, useEffect } from 'react';
 import { getUserProfile } from '../services/accountApi'; // 이 부분에서 에러 발생
 

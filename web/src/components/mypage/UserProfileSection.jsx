@@ -4,8 +4,6 @@ import { ChevronRight } from 'lucide-react';
 
 /**
  * '내 정보' 페이지 상단에 사용자 프로필과 '계정 관리' 페이지로 이동하는 링크를 표시합니다.
- * @param {object} props
- * @param {string} props.userName - 화면에 표시될 사용자 이름
  *
  * @example
  * <UserProfileSection userName="홍길동" />
