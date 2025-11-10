@@ -1,5 +1,99 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {GoogleMap, LoadScript} from '@react-google-maps/api';
+import SafetyPolygon from '../components/map/polygons/SafetyPolygon';
+import SafetyBadge from '../components/map/bottomsheet/SafetyBadge';
+import gadmData from '../data/map/gadm41_KHM_1.json';
+import {convertGADMToPolygons} from '../utils/map/geojsonConverter';
+
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+const containerStyle = {
+  width: '100%',
+  height: '100vh',
+};
+
+// 캄보디아 프놈펜
+const center = {
+  lat: 11.5564,
+  lng: 104.9282,
+};
+
+const DEFAULT_ZOOM = 8;
+
+const mapStyles = [
+  // POI (관심 지점) 라벨 숨기기
+  {
+    featureType: 'poi',
+    elementType: 'labels',
+    stylers: [{visibility: 'off'}],
+  },
+  // 비즈니스 POI 숨기기
+  {
+    featureType: 'poi.business',
+    stylers: [{visibility: 'off'}],
+  },
+  // 대중교통 정보 숨기기
+  {
+    featureType: 'transit',
+    stylers: [{visibility: 'off'}],
+  },
+];
+
+const mapOptions = {
+  disableDefaultUI: true, // 모든 기본 UI 숨김
+  styles: mapStyles,
+  clickableIcons: false, // 기본 POI 클릭 비활성화
+};
+
+// GeoJSON을 폴리곤 배열로 변환
+const convertedPolygons = convertGADMToPolygons(gadmData);
+
+// 임시 안전 등급
+const safetyLevelMap = {
+  프놈펜: 'safe',
+  칸달: 'caution',
+  시아누크빌: 'warning',
+  바탐방: 'danger',
+};
+
+// 안전 등급 적용
+const samplePolygons = convertedPolygons.map((polygon) => ({
+  ...polygon,
+  level: safetyLevelMap[polygon.nameKo] || 'safe',
+}));
 
 export default function Map() {
-  return <div>지도 페이지입니다.</div>;
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
+
+  const handlePolygonClick = (polygonData) => {
+    setSelectedPolygon(polygonData);
+    console.log('선택된 폴리곤:', polygonData); //선택된 폴리곤 데이터
+  };
+
+  return (
+    <div className="w-full h-screen">
+      <LoadScript googleMapsApiKey={googleMapsApiKey}>
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={DEFAULT_ZOOM} options={mapOptions}>
+          {/* 폴리곤 렌더링 */}
+          {samplePolygons.map((polygon) => (
+            <SafetyPolygon
+              key={polygon.id}
+              data={polygon}
+              onClick={handlePolygonClick}
+              isSelected={selectedPolygon?.id === polygon.id}
+            />
+          ))}
+        </GoogleMap>
+      </LoadScript>
+
+      {/* 선택된 폴리곤 데이터 표시 */}
+      {selectedPolygon && (
+        <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg">
+          <h3 className="font-bold text-lg">{selectedPolygon.nameKo}</h3>
+          <p className="text-sm text-gray-600 mb-3">{selectedPolygon.name}</p>
+          <SafetyBadge level={selectedPolygon.level} size="md" showLevel={true} />
+        </div>
+      )}
+    </div>
+  );
 }
