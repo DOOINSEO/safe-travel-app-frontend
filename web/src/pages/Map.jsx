@@ -1,11 +1,14 @@
 import React, {useState} from 'react';
 import {GoogleMap, LoadScript} from '@react-google-maps/api';
 import SafetyPolygon from '../components/map/polygons/SafetyPolygon';
-import SafetyBadge from '../components/map/bottomsheet/SafetyBadge';
+import MapBottomSheet from '../components/map/bottomsheet/MapBottomSheet';
 import gadmData from '../data/map/gadm41_KHM_1.json';
 import {convertGADMToPolygons} from '../utils/map/geojsonConverter';
 
 const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+// Google Maps 라이브러리 (외부 변수로 선언하여 재렌더링 시 참조 유지)
+const LIBRARIES = ['places'];
 
 const containerStyle = {
   width: '100%',
@@ -64,15 +67,17 @@ const samplePolygons = convertedPolygons.map((polygon) => ({
 
 export default function Map() {
   const [selectedPolygon, setSelectedPolygon] = useState(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const handlePolygonClick = (polygonData) => {
     setSelectedPolygon(polygonData);
-    console.log('선택된 폴리곤:', polygonData); //선택된 폴리곤 데이터
+    setIsBottomSheetOpen(true);
+    console.log('선택된 폴리곤:', polygonData);
   };
 
   return (
     <div className="w-full h-screen">
-      <LoadScript googleMapsApiKey={googleMapsApiKey}>
+      <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={LIBRARIES} preventGoogleFontsLoading>
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={DEFAULT_ZOOM} options={mapOptions}>
           {/* 폴리곤 렌더링 */}
           {samplePolygons.map((polygon) => (
@@ -86,14 +91,12 @@ export default function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* 선택된 폴리곤 데이터 표시 */}
-      {selectedPolygon && (
-        <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="font-bold text-lg">{selectedPolygon.nameKo}</h3>
-          <p className="text-sm text-gray-600 mb-3">{selectedPolygon.name}</p>
-          <SafetyBadge level={selectedPolygon.level} size="md" showLevel={true} />
-        </div>
-      )}
+      {/* 바텀시트 */}
+      <MapBottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        selectedPolygon={selectedPolygon}
+      />
     </div>
   );
 }

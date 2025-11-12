@@ -1,6 +1,6 @@
 import React from 'react';
 
-// 임시값 여행경보 4단계:
+// 여행 안전 단계 임시값
 // 1. safe (여행유의) - 파란색
 // 2. caution (여행자제) - 노란색
 // 3. warning (철수권고) - 빨간색
@@ -44,7 +44,7 @@ export default function SafetyBadge({level = 'safe', showLevel = false}) {
     <div
       className={`
         inline-flex items-center
-        px-3 py-1.5 
+        px-2 py-0.5 
         gap-2
         text-sm
         ${style.bg}
