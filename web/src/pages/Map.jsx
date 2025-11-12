@@ -7,6 +7,9 @@ import {convertGADMToPolygons} from '../utils/map/geojsonConverter';
 
 const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+// Google Maps 라이브러리 (외부 변수로 선언하여 재렌더링 시 참조 유지)
+const LIBRARIES = ['places'];
+
 const containerStyle = {
   width: '100%',
   height: '100vh',
@@ -74,7 +77,7 @@ export default function Map() {
 
   return (
     <div className="w-full h-screen">
-      <LoadScript googleMapsApiKey={googleMapsApiKey}>
+      <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={LIBRARIES} preventGoogleFontsLoading>
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={DEFAULT_ZOOM} options={mapOptions}>
           {/* 폴리곤 렌더링 */}
           {samplePolygons.map((polygon) => (
