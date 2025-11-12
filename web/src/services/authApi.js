@@ -1,5 +1,3 @@
-// src/services/authApi.js
-
 import apiClient from './apiClient';
 
 export const signup = async ({loginId, password, name, phone, nickname, alarmEnabled}) => {

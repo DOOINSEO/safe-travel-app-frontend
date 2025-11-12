@@ -2,10 +2,8 @@ import React from 'react';
 
 /**
  * 픽토그램 이미지와 다국어 텍스트를 표시합니다.
- * 어떤 언어든 동적으로 처리할 수 있도록 설계되었습니다.
- * @param {{ image: string, translations: { ko: string, en: string, [key: string]: string } }} props.pictogram
- * @param {{ code: string, name: string } | null} props.selectedLanguage
  */
+
 export default function PictogramDisplay({ pictogram, selectedLanguage }) {
     // 기본 언어(한국어, 영어)는 항상 표시합니다.
     const { ko: korean, en: english } = pictogram.translations;

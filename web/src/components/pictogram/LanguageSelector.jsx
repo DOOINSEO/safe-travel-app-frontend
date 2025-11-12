@@ -1,13 +1,9 @@
-// src/components/pictogram/LanguageSelector.jsx
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { languages } from '../../data/pictogramData';
 
 /**
  * 언어 검색 및 선택 드롭다운 UI를 제공하는 컴포넌트입니다.
- * @param {object | null} selectedLanguage - 현재 선택된 언어 객체
- * @param {function(object | null): void} onSelectLanguage - 언어 선택 시 호출될 콜백 함수
  */
 export default function LanguageSelector({ selectedLanguage, onSelectLanguage }) {
     const [searchTerm, setSearchTerm] = useState('');

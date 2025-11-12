@@ -1,5 +1,3 @@
-// src/hooks/useLogin.js
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/authApi';

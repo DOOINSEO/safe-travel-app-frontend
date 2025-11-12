@@ -1,5 +1,3 @@
-// src/pages/Pictogram.jsx
-
 import React, { useState } from 'react';
 import PageHeader from '../components/common/PageHeader';
 import { pictograms, categories } from '../data/pictogramData'; // categories import
@@ -18,7 +16,6 @@ export default function Pictogram() {
             <PageHeader title="픽토그램" />
 
             <main className="px-[20px]">
-                {/* 수정된 CategoryFilter 사용법 */}
                 <CategoryFilter
                     items={categories}
                     selectedId={selectedCategory}

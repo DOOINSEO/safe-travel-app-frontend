@@ -9,8 +9,6 @@ import { useEmergencyMessage } from '../hooks/useEmergencyMessage';
 
 /**
  * '내 정보' 페이지입니다.
- * 사용자 데이터 로딩을 책임지며, 세부 기능 로직(메시지 자동 저장 등)은 커스텀 훅에 위임합니다.
- * UI 렌더링은 각 목적에 맞게 분리된 자식 컴포넌트들을 조립하여 구성합니다.
  */
 export default function MyPage() {
     const [userName, setUserName] = useState('사용자');
@@ -37,7 +35,7 @@ export default function MyPage() {
             }
         };
         fetchInitialData();
-    }, []); // 의존성 배열이 비어있어, 마운트 시 한 번만 실행됩니다.
+    }, []);
 
     if (isLoading) {
         return (
@@ -64,7 +62,7 @@ export default function MyPage() {
                 />
                 <ContactList
                     contacts={contacts}
-                    setContacts={setContacts} // 연락처 추가/삭제 로직은 ContactList 내부에서 처리될 수 있습니다.
+                    setContacts={setContacts} // 연락처 추가/삭제 로직은 ContactList 내부에서 처리
                 />
                 <div className="h-[15px]" />
             </main>
