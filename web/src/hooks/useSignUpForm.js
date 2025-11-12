@@ -1,8 +1,8 @@
 // src/hooks/useSignUpForm.js
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signup } from '../services/authApi';
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {signup} from '../services/authApi';
 
 /**
  * 회원가입 폼의 상태 관리와 제출 로직을 처리하는 커스텀 훅입니다.
@@ -56,7 +56,8 @@ export function useSignUpForm() {
 
         setIsLoading(true);
         try {
-            await signup(formData); // 상태 객체를 그대로 API에 전달
+            const {confirmPassword, ...signupPayload} = formData;
+            await signup(signupPayload);
             alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
             navigate('/login');
         } catch (err) {

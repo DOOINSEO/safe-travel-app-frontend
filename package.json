@@ -24,6 +24,7 @@
     "@morpheus/plugin-location": "file:.morpheus/libs/morpheus-plugin-location-2.10.12.tgz",
     "@morpheus/plugin-qr": "file:.morpheus/libs/morpheus-plugin-qr-2.15.32.tgz",
     "@tailwindcss/vite": "^4.1.16",
+    "axios": "^1.13.2",
     "lucide-react": "^0.548.0",
     "motion": "^12.23.24",
     "react": "^19.1.0",
