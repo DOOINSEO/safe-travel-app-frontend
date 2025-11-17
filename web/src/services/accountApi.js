@@ -1,5 +1,4 @@
-// ❗️ 수정 1: import 구문에 중괄호 { }를 추가했습니다.
-import { apiClient } from './apiClient';
+import apiClient from './apiClient';
 
 /**
  * 서버의 사용자 프로필 응답을 클라이언트에서 변환합니다.
@@ -29,8 +28,9 @@ const transformUserProfile = (serverData) => {
  * @param {string} userId
  */
 export const getUserProfile = async (userId) => {
-    const serverData = await apiClient.get(`/user/${userId}`);
-    return transformUserProfile(serverData);
+    // 이제 response는 전체 객체이므로 .data를 사용해야 합니다.
+    const response = await apiClient.get(`/api/user/${userId}`);
+    return transformUserProfile(response.data);
 };
 
 /**
@@ -39,26 +39,26 @@ export const getUserProfile = async (userId) => {
  * @param {object} dataToUpdate - 수정할 데이터 객체
  */
 export const updateUserProfile = async (userId, dataToUpdate) => {
-    // TODO: 실제 수정 API의 엔드포인트와 HTTP Method(PUT, PATCH 등)를 백엔드에 확인해야 합니다.
-    return await apiClient.put(`/user/${userId}`, dataToUpdate);
-}; // ❗️ 수정 2: 여기에 빠져있던 닫는 중괄호를 추가했습니다.
+    const response = await apiClient.put(`/api/user/${userId}`, dataToUpdate);
+    return response.data;
+};
 
 export const getUserAccountData = async () => {
-    // TODO: 실제 API 엔드포인트 '/account/my-info'가 맞는지 확인하세요.
-    return await apiClient.get('/account/my-info');
+    const response = await apiClient.get('/api/account/my-info');
+    return response.data;
 };
 
 export const addContact = async (newContact) => {
-    // TODO: 실제 API 엔드포인트와 요청 본문 형식을 확인하세요.
-    await apiClient.post('/account/contacts', { contact: newContact });
+    const response = await apiClient.post('/api/account/contacts', { contact: newContact });
+    return response.data;
 };
 
 export const deleteContact = async (contactToRemove) => {
-    // TODO: 실제 API 엔드포인트와 요청 본문 형식을 확인하세요.
-    await apiClient.delete('/account/contacts', { contact: contactToRemove });
+    const response = await apiClient.delete('/api/account/contacts', { data: { contact: contactToRemove } }); // DELETE 요청 시 본문은 data 속성에 넣습니다.
+    return response.data;
 };
 
 export const saveEmergencyMessage = async (message) => {
-    // TODO: 실제 API 엔드포인트와 요청 본문 형식을 확인하세요.
-    await apiClient.put('/account/emergency-message', { message });
+    const response = await apiClient.put('/api/account/emergency-message', { message });
+    return response.data;
 };
