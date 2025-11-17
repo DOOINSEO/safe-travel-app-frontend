@@ -1,30 +1,40 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthInput } from '../components/auth/AuthInput';
 import AuthButton from '../components/auth/AuthButton';
-import { useLogin } from '../hooks/useLogin'; // 커스텀 훅 import
+import { useLogin } from '../hooks/useLogin';
 
 /**
  * 사용자 로그인을 위한 UI를 렌더링하는 페이지 컴포넌트입니다.
  */
 export default function LogIn() {
     const navigate = useNavigate();
+    const location = useLocation(); // useLocation 훅 사용
     const [loginId, setLoginId] = useState('');
     const [password, setPassword] = useState('');
 
-    // 로그인 관련 비동기 로직과 상태를 훅에서 가져옵니다.
     const { loginUser, isLoading, error } = useLogin();
 
-    /** 아이디 입력 시 한글 입력을 실시간으로 방지합니다. */
+    // ProtectedRoute에서 넘겨준 state에서 원래 목적지 경로를 가져옵니다.
+    // 만약 state가 없으면 기본값으로 메인 페이지('/')를 사용합니다.
+    const from = location.state?.from?.pathname || '/';
+
     const handleLoginIdChange = (e) => {
         setLoginId(e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, ''));
     };
 
-    /** 폼 제출 시 useLogin 훅의 loginUser 함수를 호출합니다. */
-    const handleLogin = (e) => {
+    // loginUser 함수를 async/await로 변경하여 성공 여부를 기다립니다.
+    const handleLogin = async (e) => {
         e.preventDefault();
-        loginUser(loginId, password);
+
+        // useLogin 훅이 성공적으로 로그인을 처리했는지 확인
+        const success = await loginUser(loginId, password);
+
+        if (success) {
+            // 로그인 성공 시, 원래 가려던 페이지(from)로 이동합니다.
+            navigate(from, { replace: true });
+        }
     };
 
     return (
