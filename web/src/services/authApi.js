@@ -1,14 +1,23 @@
-import apiClient from './apiClient';
+// ❗️ 수정된 부분: 'apiClient'를 중괄호 { } 안에 넣었습니다.
+import { apiClient } from './apiClient';
 
-export const signup = async ({loginId, password, name, phone, nickname, alarmEnabled}) => {
-  return apiClient.post('/user', {loginId, password, name, phone, nickname, alarmEnabled});
-};
+const transformLoginData = (serverData) => ({
+    accessToken: serverData.token,
+    userName: serverData.user_name,
+    userEmail: serverData.user_email,
+});
+
+const transformSignUpData = (serverData) => ({
+    userId: serverData.user_id,
+    message: serverData.message,
+});
 
 export const login = async (loginId, password) => {
-  return apiClient.post('/user/login', {loginId, password});
+    const serverData = await apiClient.post('/auth/login', { loginId, password });
+    return transformLoginData(serverData);
 };
 
-export const authAPI = {
-  login: ({loginId, password}) => apiClient.post('/user/login', {loginId, password}),
-  register: (payload) => apiClient.post('/user', payload),
+export const signup = async (signupData) => {
+    const serverData = await apiClient.post('/auth/signup', signupData);
+    return transformSignUpData(serverData);
 };
