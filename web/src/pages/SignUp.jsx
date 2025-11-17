@@ -3,28 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthInput } from '../components/auth/AuthInput';
 import AuthButton from '../components/auth/AuthButton';
-import { formatPhoneNumber } from '../utils/formatter';
-import { useSignUpForm } from '../hooks/useSignUpForm'; // 커스텀 훅 import
+import { useSignUpForm } from '../hooks/useSignUpForm';
 
-/**
- * 사용자 회원가입을 위한 UI를 렌더링하는 페이지 컴포넌트입니다.
- * 모든 폼 관련 로직은 `useSignUpForm` 훅에 위임합니다.
- */
 export default function SignUp() {
     const navigate = useNavigate();
-    const { formData, handleChange, handleSubmit, isLoading, error } = useSignUpForm();
+    const { formData, handleChange, handleSubmit, error, displayPhone } = useSignUpForm();
 
     return (
         <AuthLayout title="회원가입하기">
             <form onSubmit={handleSubmit} className="flex w-full flex-col items-center">
                 <div className="flex w-full flex-col items-center gap-6">
-                    {/* 각 input에 `name` 속성을 추가하여 범용 handleChange와 연결합니다. */}
                     <AuthInput name="loginId" label="아이디" type="text" placeholder="사용할 아이디 입력" value={formData.loginId} onChange={handleChange} />
                     <AuthInput name="password" label="비밀번호" type="password" placeholder="비밀번호 입력" value={formData.password} onChange={handleChange} />
                     <AuthInput name="confirmPassword" label="비밀번호 확인" type="password" placeholder="비밀번호 다시 입력" value={formData.confirmPassword} onChange={handleChange} />
                     <AuthInput name="name" label="이름" type="text" placeholder="이름 입력" value={formData.name} onChange={handleChange} />
                     <AuthInput name="nickname" label="닉네임" type="text" placeholder="닉네임 입력" value={formData.nickname} onChange={handleChange} />
-                    <AuthInput name="phone" label="휴대전화번호" type="tel" placeholder="010-1234-5678" value={formatPhoneNumber(formData.phone)} onChange={handleChange} />
+                    <AuthInput name="phone" label="휴대전화번호" type="tel" placeholder="010-1234-5678" value={displayPhone} onChange={handleChange} />
 
                     <div className="flex w-full items-center gap-2">
                         <input
@@ -41,11 +35,13 @@ export default function SignUp() {
                     </div>
                 </div>
 
-                <div className="mt-4 h-5 text-center">
-                    {error && <p className="text-sm text-red-600">{error}</p>}
-                </div>
+                {error && (
+                    <div className="mt-4 h-5 text-center">
+                        <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                )}
 
-                <AuthButton text="회원가입" isLoading={isLoading} />
+                <AuthButton text="회원가입" />
                 <div className="h-[15px]" />
 
                 <p className="text-sm text-gray-600">

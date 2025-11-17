@@ -1,14 +1,10 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {signup} from '../services/authApi';
+import {formatPhoneNumber} from '../utils/formatter';
 
-/**
- * 회원가입 폼의 상태 관리와 제출 로직을 처리하는 커스텀 훅입니다.
- */
 export function useSignUpForm() {
   const navigate = useNavigate();
-
-  // 모든 폼 필드를 하나의 상태 객체로 관리합니다.
   const [formData, setFormData] = useState({
     loginId: '',
     password: '',
@@ -18,53 +14,50 @@ export function useSignUpForm() {
     nickname: '',
     alarmEnabled: true,
   });
+  const [error, setError] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // 전화번호 정규화: 숫자만 남기고 하이픈 제거
+  const normalizePhone = (phone) => {
+    return phone.replace(/[^0-9]/g, '');
+  };
 
-  /**
-   * 모든 input의 변경 이벤트를 처리하는 범용 핸들러입니다.
-   * input의 'name' 속성을 키로 사용하여 상태를 업데이트합니다.
-   */
   const handleChange = (e) => {
     const {name, value, type, checked} = e.target;
     let processedValue = type === 'checkbox' ? checked : value;
-
-    // 필드별 특수 처리
-    if (name === 'loginId') {
-      processedValue = value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
-    }
+    
+    // 전화번호 필드는 숫자만 저장 (UI에는 하이픈이 보이도록 포맷팅)
     if (name === 'phone') {
-      const numericValue = value.replace(/[^0-9]/g, '');
-      if (numericValue.length > 11) return; // 11자리 초과 입력 방지
-      processedValue = numericValue;
+      processedValue = normalizePhone(value);
     }
-
+    
     setFormData((prev) => ({...prev, [name]: processedValue}));
+    setError(''); // 입력 시 에러 메시지 초기화
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError('');
 
+    // 비밀번호 일치 확인
     if (formData.password !== formData.confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
     }
 
-    setIsLoading(true);
+    // 전화번호 정규화하여 전송
+    const {confirmPassword, ...signupPayload} = formData;
+    signupPayload.phone = normalizePhone(signupPayload.phone);
+    
     try {
-      const {confirmPassword, ...signupPayload} = formData;
       await signup(signupPayload);
-      alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
       navigate('/login');
-    } catch (err) {
-      setError(err.message);
-      console.error('회원가입 실패:', err);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error('회원가입 실패:', error);
     }
   };
 
-  return {formData, handleChange, handleSubmit, isLoading, error};
+  // UI에 표시할 전화번호 (하이픈 포함)
+  const displayPhone = formatPhoneNumber(formData.phone);
+
+  return {formData, handleChange, handleSubmit, error, displayPhone};
 }
