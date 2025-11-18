@@ -1,36 +1,40 @@
 import { useState, useEffect } from 'react';
-import { getUserProfile } from '../services/accountApi'; // 이 부분에서 에러 발생
+import { getUserProfile } from '../services/accountApi';
 
-/**
- * 특정 사용자 ID에 대한 프로필 정보를 비동기적으로 불러오는 커스텀 훅입니다.
- * 데이터, 로딩 상태, 에러 상태를 반환합니다.
- * @param {string} userId - 불러올 사용자의 ID
- */
 export function useUserProfile(userId) {
-    const [userProfile, setUserProfile] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (!userId) {
-            setIsLoading(false);
-            return;
-        }
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const targetUserId = userId || localStorage.getItem('userId');
+      
+      if (!targetUserId) {
+        setIsLoading(false);
+        setError('사용자 ID가 없습니다.');
+        return;
+      }
 
-        const fetchUserData = async () => {
-            try {
-                const profileData = await getUserProfile(userId);
-                setUserProfile(profileData);
-            } catch (err) {
-                console.error(`사용자(ID: ${userId}) 정보 로딩 실패:`, err);
-                setError("사용자 정보를 불러오는데 실패했습니다.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getUserProfile(targetUserId);
+        
+        // API 응답 구조: {message, data: {...}, isSuccess}
+        const data = response?.data || response;
+        setUserProfile(data);
+      } catch (err) {
+        console.error('사용자 정보 로딩 실패:', err);
+        setError(err.message || '사용자 정보를 불러오는데 실패했습니다.');
+        setUserProfile(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        fetchUserData();
-    }, [userId]);
+    fetchUserData();
+  }, [userId]);
 
-    return { userProfile, isLoading, error };
+  return { userProfile, isLoading, error };
 }
