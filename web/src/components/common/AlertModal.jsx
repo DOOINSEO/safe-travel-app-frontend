@@ -5,11 +5,10 @@
 
 import React from 'react';
 
-export default function AlertModal({ isOpen, onClose, title, children }) {
+export default function AlertModal({isOpen, onClose, title, children}) {
     if (!isOpen) return null;
 
-    return (
-        <div
+    return (<div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
             onClick={onClose}
         >
@@ -30,6 +29,5 @@ export default function AlertModal({ isOpen, onClose, title, children }) {
                     </button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 }
