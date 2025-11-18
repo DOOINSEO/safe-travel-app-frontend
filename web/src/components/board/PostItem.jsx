@@ -76,10 +76,19 @@ export default function PostItem({ post, handleLikeToggle }) {
                 )}
 
                 <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-gray-600">
-                        <ThumbsUp size={16} />
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLikeToggle(post.postId);
+                        }}
+                        className={`flex items-center gap-1 transition-colors ${
+                            post.isLike ? 'text-red-600 hover:text-red-700' : 'text-gray-600 hover:text-red-600'
+                        }`}
+                    >
+                        <ThumbsUp size={16} fill={post.isLike ? 'currentColor' : 'none'} />
                         <span className="text-sm font-medium">{post.likeCount}</span>
-                    </div>
+                    </button>
                     <span className="text-xs text-gray-500">{post.locationName}</span>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 // GeoJSON을 폴리곤 배열로 변환
 
-import {getKoreanRegionName} from '../../data/map/regionNameMapping';
+import {CAMBODIA_REGIONS} from '../../data/regionData';
 
 export function convertGADMToPolygons(geojson) {
   if (!geojson || !geojson.features) {
@@ -32,13 +32,14 @@ export function convertGADMToPolygons(geojson) {
       });
     }
 
-    const originalName = properties.NAME_1 || `Region ${index}`;
-    const koreanName = getKoreanRegionName(originalName);
+    // GID_1 (예: 'KHM-01')을 사용하여 CAMBODIA_REGIONS에서 지역 정보 찾기
+    const regionId = properties.GID_1 || `region-${index}`;
+    const regionData = CAMBODIA_REGIONS.find((r) => r.id === regionId);
 
     return {
-      id: properties.GID_1 || `region-${index}`,
-      name: originalName, // 원본 이름
-      nameKo: koreanName, // 한국어 이름
+      id: regionId,
+      name: regionData?.name || properties.NAME_1 || `Region ${index}`, // 영문 이름
+      nameKo: regionData?.nameKo || properties.NAME_1 || `Region ${index}`, // 한국어 이름
       level: 'safe', // 안전단계(기본값)
       coordinates, // 좌표
       // 원본 데이터도

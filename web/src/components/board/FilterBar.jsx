@@ -1,7 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {ChevronDown} from 'lucide-react';
 
-const CATEGORIES = [{id: 1, name: '기상이변'}, {id: 2, name: '소매치기'}, {id: 3, name: '교통사고'}, {id: 4, name: '시설낙후'},];
+const CATEGORIES = [
+    {id: 0, name: '기상이변'},
+    {id: 1, name: '교통사고'},
+    {id: 2, name: '사기'},
+    {id: 3, name: '소매치기'},
+    {id: 4, name: '시설낙후'},
+    {id: 5, name: '흉기 난동'},
+    {id: 6, name: '화재'},
+    {id: 7, name: '기타'},
+];
 
 const SORT_OPTIONS = [{value: 'createdAt', label: '최신순'}, {
     value: 'likeCount',
