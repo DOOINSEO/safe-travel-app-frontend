@@ -1,42 +1,6 @@
 import React from 'react';
 import {ChevronDown, Upload, X} from 'lucide-react';
-import {CAMBODIA_REGIONS} from '../../../data/regionData';
-
-const DUMMY_LOCATIONS = [
-  {country: '국가 선택', id: null, regions: [{name: '지역 선택', id: null, nameKo: '지역 선택'}]},
-  {
-    country: '캄보디아',
-    id: 'KHM',
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      ...CAMBODIA_REGIONS.map((region) => ({
-        name: region.name,
-        id: region.id,
-        nameKo: region.nameKo,
-      })),
-    ],
-  },
-  {
-    country: '터키',
-    id: 2,
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      {name: '이스탄불', id: 201, nameKo: '이스탄불'},
-      {name: '앙카라', id: 202, nameKo: '앙카라'},
-    ],
-  },
-];
-const DUMMY_CATEGORIES = [
-  {id: null, name: '카테고리'},
-  {id: 0, name: '기상이변'},
-  {id: 1, name: '교통사고'},
-  {id: 2, name: '사기'},
-  {id: 3, name: '소매치기'},
-  {id: 4, name: '시설낙후'},
-  {id: 5, name: '흉기 난동'},
-  {id: 6, name: '화재'},
-  {id: 7, name: '기타'},
-];
+import {LOCATIONS, CATEGORIES_WITH_SELECT} from '../../../data/boardData';
 
 export default function PostForm({
   postData,
@@ -48,6 +12,7 @@ export default function PostForm({
   handleImageUpload,
   handleImageDelete,
   handleSubmit,
+  userName,
 }) {
   const today = new Date().toLocaleDateString('ko-KR').slice(0, -1);
 
@@ -56,7 +21,7 @@ export default function PostForm({
       <div className="text-sm">
         <div className="flex">
           <span className="w-16 font-semibold text-gray-600">작성자</span>
-          <span>Jueon</span>
+          <span>{userName || '사용자'}</span>
         </div>
         <div className="flex mt-1">
           <span className="w-16 font-semibold text-gray-600">작성날짜</span>
@@ -69,7 +34,7 @@ export default function PostForm({
             onChange={handleCountryChange}
             className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {DUMMY_LOCATIONS.map((loc) => (
+            {LOCATIONS.map((loc) => (
               <option key={loc.country} value={loc.country}>
                 {loc.country}
               </option>
@@ -103,7 +68,7 @@ export default function PostForm({
             onChange={handleInputChange}
             className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {DUMMY_CATEGORIES.map((cat) => (
+            {CATEGORIES_WITH_SELECT.map((cat) => (
               <option key={cat.name} value={cat.id || ''}>
                 {cat.name}
               </option>

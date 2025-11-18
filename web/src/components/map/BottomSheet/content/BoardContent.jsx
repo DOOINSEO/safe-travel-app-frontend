@@ -1,15 +1,16 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import FilterBar from '../../../board/FilterBar';
 import PostItem from '../../../board/PostItem';
 import FloatingWriteButton from '../../../board/FloatingWriteButton';
-import {DUMMY_POSTS} from '../../../../data/dummyData';
+import {getPosts} from '../../../../services/postApi';
 
 /**
  * 지도 바텀시트 내부에 표시될 게시판 컨텐츠 컴포넌트입니다.
  * 일반 게시판 페이지와 동일한 UI를 제공하며, 지역 필터링은 API 요청으로 처리됩니다.
  */
-export default function BoardContent() {
-  const [posts, setPosts] = useState(DUMMY_POSTS);
+export default function BoardContent({region}) {
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     sort: 'createdAt',
     categoryId: null,
@@ -43,30 +44,39 @@ export default function BoardContent() {
     );
   };
 
-  // 카테고리 필터링 및 정렬만 적용 (지역 필터링은 API에서 처리)
+  // 게시물 목록 조회 API 호출 (지역 기반)
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (!region || !region.id) {
+        setPosts([]);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const posts = await getPosts({
+          regionCode: region.id,
+          sort: filters.sort,
+          categoryId: filters.categoryId,
+          page: 0,
+          size: 20,
+        });
+        setPosts(posts);
+      } catch (error) {
+        console.error('게시물 목록 조회 실패:', error);
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [region, filters.sort, filters.categoryId]);
+
   const filteredAndSortedPosts = useMemo(() => {
-    let result = [...posts];
-
-    // 카테고리 필터링
-    if (filters.categoryId !== null) {
-      result = result.filter((p) => p.categoryId === filters.categoryId);
-    }
-
-    // 정렬
-    switch (filters.sort) {
-      case 'likeCount':
-        result.sort((a, b) => b.likeCount - a.likeCount);
-        break;
-      case 'likeCount,asc':
-        result.sort((a, b) => a.likeCount - b.likeCount);
-        break;
-      case 'createdAt':
-      default:
-        result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-    }
-    return result;
-  }, [filters, posts]);
+    return posts;
+  }, [posts]);
 
   return (
     <>
@@ -76,17 +86,27 @@ export default function BoardContent() {
         onCategoryToggle={handleCategoryToggle}
         activeCategoryId={filters.categoryId}
       />
-      <div className="flex flex-col">
-        {filteredAndSortedPosts.length > 0 ? (
-          filteredAndSortedPosts.map((post) => (
-            <PostItem key={post.postId} post={post} handleLikeToggle={handleLikeToggle} />
-          ))
-        ) : (
-          <div className="py-20 text-center text-gray-500">
-            <p>조건에 맞는 게시글이 없습니다.</p>
-          </div>
-        )}
-      </div>
+      {!region ? (
+        <div className="flex h-full items-center justify-center text-gray-500">
+          <p>지도에서 지역을 선택하여 게시물을 확인하세요.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          {isLoading ? (
+            <div className="py-20 text-center text-gray-500">
+              <p>게시물을 불러오는 중...</p>
+            </div>
+          ) : filteredAndSortedPosts.length > 0 ? (
+            filteredAndSortedPosts.map((post) => (
+              <PostItem key={post.postId} post={post} handleLikeToggle={handleLikeToggle} />
+            ))
+          ) : (
+            <div className="py-20 text-center text-gray-500">
+              <p>이 지역에 등록된 게시글이 없습니다.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       <FloatingWriteButton />
     </>

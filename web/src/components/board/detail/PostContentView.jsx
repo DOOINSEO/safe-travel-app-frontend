@@ -1,44 +1,7 @@
 import React from 'react';
 import ImageSlider from '../ImageSlider';
 import {ChevronDown, MessageSquare, ThumbsUp, Upload} from 'lucide-react';
-import {CAMBODIA_REGIONS} from '../../../data/regionData';
-
-// 페이지에서 사용하던 더미데이터 import
-const DUMMY_LOCATIONS = [
-  {country: '국가 선택', id: null, regions: [{name: '지역 선택', id: null, nameKo: '지역 선택'}]},
-  {
-    country: '캄보디아',
-    id: 'KHM',
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      ...CAMBODIA_REGIONS.map((region) => ({
-        name: region.name,
-        id: region.id,
-        nameKo: region.nameKo,
-      })),
-    ],
-  },
-  {
-    country: '터키',
-    id: 2,
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      {name: '이스탄불', id: 201, nameKo: '이스탄불'},
-      {name: '앙카라', id: 202, nameKo: '앙카라'},
-    ],
-  },
-];
-const DUMMY_CATEGORIES = [
-  {id: null, name: '카테고리'},
-  {id: 0, name: '기상이변'},
-  {id: 1, name: '교통사고'},
-  {id: 2, name: '사기'},
-  {id: 3, name: '소매치기'},
-  {id: 4, name: '시설낙후'},
-  {id: 5, name: '흉기 난동'},
-  {id: 6, name: '화재'},
-  {id: 7, name: '기타'},
-];
+import {LOCATIONS, CATEGORIES_WITH_SELECT} from '../../../data/boardData';
 
 export default function PostContentView({
   post,
@@ -82,7 +45,7 @@ export default function PostContentView({
                 onChange={handleCountryChangeForEdit}
                 className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {DUMMY_LOCATIONS.map((loc) => (
+                {LOCATIONS.map((loc) => (
                   <option key={loc.country} value={loc.country}>
                     {loc.country}
                   </option>
@@ -114,7 +77,7 @@ export default function PostContentView({
                 onChange={(e) => setEditedCategoryId(e.target.value)}
                 className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {DUMMY_CATEGORIES.map((cat) => (
+                {CATEGORIES_WITH_SELECT.map((cat) => (
                   <option key={cat.name} value={cat.id || ''}>
                     {cat.name}
                   </option>
@@ -140,24 +103,19 @@ export default function PostContentView({
 
       <div className="mt-4 flex items-center justify-between pb-4">
         <div className="flex items-center space-x-4 text-gray-600">
-          <div className={`flex items-center gap-1 ${post.isLike ? 'text-red-600' : ''}`}>
-            <ThumbsUp size={18} fill={post.isLike ? 'currentColor' : 'none'} /> <span>{post.likeCount}</span>
-          </div>
+          <button
+            onClick={handleLikeToggle}
+            className={`flex items-center gap-1 transition-colors ${
+              post.isLike ? 'text-red-600 hover:text-red-700' : 'text-gray-600 hover:text-red-600'
+            }`}
+          >
+            <ThumbsUp size={18} fill={post.isLike ? 'currentColor' : 'none'} />
+            <span className="text-sm font-medium">{post.likeCount}</span>
+          </button>
           <div className="flex items-center gap-1">
             <MessageSquare size={18} /> <span>{comments.length}</span>
           </div>
         </div>
-        <button
-          onClick={handleLikeToggle}
-          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
-            post.isLike
-              ? 'bg-red-600 text-white hover:bg-red-700'
-              : 'bg-gray-200 text-gray-700 hover:bg-red-100 hover:text-red-600'
-          }`}
-        >
-          <ThumbsUp size={16} fill={post.isLike ? 'white' : 'none'} />
-          {post.isLike ? '추천됨' : '추천하기'}
-        </button>
       </div>
 
       {isOwner && (

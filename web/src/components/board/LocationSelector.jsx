@@ -1,46 +1,16 @@
 import React, {useState} from 'react';
 import {ChevronDown} from 'lucide-react';
-import {CAMBODIA_REGIONS} from '../../data/regionData';
-
-// 위치 관련 더미데이터
-const DUMMY_LOCATIONS = [
-  {
-    country: '국가 전체',
-    id: null,
-    regions: [{name: '지역 전체', id: null, nameKo: '지역 전체'}],
-  },
-  {
-    country: '캄보디아',
-    id: 'KHM',
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      ...CAMBODIA_REGIONS.map((region) => ({
-        name: region.name,
-        id: region.id,
-        nameKo: region.nameKo,
-      })),
-    ],
-  },
-  {
-    country: '터키',
-    id: 2,
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      {name: '이스탄불', id: 201, nameKo: '이스탄불'},
-      {name: '앙카라', id: 202, nameKo: '앙카라'},
-    ],
-  },
-];
+import {FILTER_LOCATIONS} from '../../data/boardData';
 
 export default function LocationSelector({onCountryChange, onRegionChange}) {
-  const [selectedCountryName, setSelectedCountryName] = useState(DUMMY_LOCATIONS[0].country);
+  const [selectedCountryName, setSelectedCountryName] = useState(FILTER_LOCATIONS[0].country);
 
   // 국가 선택 시 호출되는 함수
   const handleCountryChange = (e) => {
     const countryName = e.target.value;
     setSelectedCountryName(countryName);
 
-    const country = DUMMY_LOCATIONS.find((c) => c.country === countryName);
+    const country = FILTER_LOCATIONS.find((c) => c.country === countryName);
     const countryId = country ? country.id : null;
 
     // 국가 ID를 상위 컴포넌트로 전달
@@ -57,7 +27,7 @@ export default function LocationSelector({onCountryChange, onRegionChange}) {
   };
 
   // 선택된 국가에 따라 사용 가능한 지역 목록을 필터링
-  const availableRegions = DUMMY_LOCATIONS.find((c) => c.country === selectedCountryName)?.regions || [];
+  const availableRegions = FILTER_LOCATIONS.find((c) => c.country === selectedCountryName)?.regions || [];
 
   return (
     <div className="grid grid-cols-2 gap-4 bg-white px-4 py-3">
@@ -67,7 +37,7 @@ export default function LocationSelector({onCountryChange, onRegionChange}) {
           onChange={handleCountryChange}
           className="w-full appearance-none rounded-md border border-gray-300 bg-white p-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {DUMMY_LOCATIONS.map((loc) => (
+          {FILTER_LOCATIONS.map((loc) => (
             <option key={loc.country} value={loc.country}>
               {loc.country}
             </option>

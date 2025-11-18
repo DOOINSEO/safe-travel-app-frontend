@@ -19,7 +19,7 @@ export default function BottomSheetContent({selectedPolygon}) {
       {/* 탭별 컨텐츠 (스크롤) */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === 'news' && <NewsContent region={selectedPolygon} />}
-        {activeTab === 'board' && <BoardContent />}
+        {activeTab === 'board' && <BoardContent region={selectedPolygon} />}
         {activeTab === 'info' && <InfoContent region={selectedPolygon} />}
       </div>
     </div>

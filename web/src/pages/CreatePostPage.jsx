@@ -3,32 +3,9 @@ import {useNavigate} from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import AlertModal from '../components/common/AlertModal';
 import PostForm from '../components/board/create/PostForm';
-import {CAMBODIA_REGIONS} from '../data/regionData';
-
-const DUMMY_LOCATIONS = [
-  {country: '국가 선택', id: null, regions: [{name: '지역 선택', id: null, nameKo: '지역 선택'}]},
-  {
-    country: '캄보디아',
-    id: 'KHM',
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      ...CAMBODIA_REGIONS.map((region) => ({
-        name: region.name,
-        id: region.id,
-        nameKo: region.nameKo,
-      })),
-    ],
-  },
-  {
-    country: '터키',
-    id: 2,
-    regions: [
-      {name: '지역 전체', id: null, nameKo: '지역 전체'},
-      {name: '이스탄불', id: 201, nameKo: '이스탄불'},
-      {name: '앙카라', id: 202, nameKo: '앙카라'},
-    ],
-  },
-];
+import {LOCATIONS} from '../data/boardData';
+import {getUserProfile} from '../services/accountApi';
+import {createPost} from '../services/postApi';
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
@@ -36,10 +13,39 @@ export default function CreatePostPage() {
 
   const [postData, setPostData] = useState({regionId: '', categoryId: '', content: ''});
   const [images, setImages] = useState([]);
-  const [selectedCountryName, setSelectedCountryName] = useState(DUMMY_LOCATIONS[0].country);
+  const [selectedCountryName, setSelectedCountryName] = useState(LOCATIONS[0].country);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalState, setModalState] = useState({isOpen: false, title: '', message: ''});
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  // 사용자 정보 가져오기
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        // localStorage에서 먼저 확인
+        const userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+          const userInfo = JSON.parse(userInfoStr);
+          setUserName(userInfo.nickname || userInfo.name || '');
+          return;
+        }
+
+        // localStorage에 없으면 API 호출
+        const response = await getUserProfile();
+        const data = response?.data || response;
+        if (data) {
+          setUserName(data.nickname || data.name || '');
+          localStorage.setItem('userInfo', JSON.stringify(data));
+        }
+      } catch (error) {
+        console.error('사용자 정보 가져오기 실패:', error);
+        setUserName('');
+      }
+    };
+
+    fetchUserName();
+  }, []);
 
   useEffect(() => {
     return () => images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
@@ -78,12 +84,22 @@ export default function CreatePostPage() {
     }
     setIsSubmitting(true);
     try {
-      await new Promise((res) => setTimeout(res, 1500));
+      await createPost({
+        content: postData.content.trim(),
+        categoryId: postData.categoryId,
+        regionCode: postData.regionId,
+        images: images,
+      });
+
       setSubmissionSuccess(true);
       setModalState({isOpen: true, title: '성공', message: '게시물이 성공적으로 작성되었습니다.'});
     } catch (error) {
       console.error('게시물 작성 실패:', error);
-      setModalState({isOpen: true, title: '오류', message: '게시물 작성에 실패했습니다.'});
+      setModalState({
+        isOpen: true,
+        title: '오류',
+        message: error.message || '게시물 작성에 실패했습니다.',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -93,7 +109,7 @@ export default function CreatePostPage() {
     setModalState({isOpen: false, title: '', message: ''});
     if (submissionSuccess) navigate('/board');
   };
-  const availableRegions = DUMMY_LOCATIONS.find((c) => c.country === selectedCountryName)?.regions || [];
+  const availableRegions = LOCATIONS.find((c) => c.country === selectedCountryName)?.regions || [];
 
   return (
     <div className="flex h-screen flex-col bg-white">
@@ -111,6 +127,7 @@ export default function CreatePostPage() {
           handleImageUpload={handleImageUpload}
           handleImageDelete={handleImageDelete}
           handleSubmit={handleSubmit}
+          userName={userName}
         />
       </main>
       <footer className="p-4">

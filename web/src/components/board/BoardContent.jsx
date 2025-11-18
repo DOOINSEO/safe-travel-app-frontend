@@ -1,13 +1,13 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import LocationSelector from './LocationSelector';
 import FilterBar from './FilterBar';
 import PostItem from './PostItem';
 import FloatingWriteButton from './FloatingWriteButton';
-import {DUMMY_POSTS} from '../../data/dummyData';
+import {getPosts} from '../../services/postApi';
 
 export default function BoardContent() {
-  // DUMMY_POSTS를 state로 관리하여 좋아요 상태 변경을 반영합니다.
-  const [posts, setPosts] = useState(DUMMY_POSTS);
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     countryId: null,
     regionId: null,
@@ -51,33 +51,39 @@ export default function BoardContent() {
     );
   };
 
+  // 게시물 목록 조회 API 호출
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const params = {
+          sort: filters.sort,
+          categoryId: filters.categoryId,
+          page: 0,
+          size: 20,
+        };
+
+        // 지역이 선택된 경우 regionCode 추가
+        if (filters.regionId) {
+          params.regionCode = filters.regionId;
+        }
+
+        const posts = await getPosts(params);
+        setPosts(posts);
+      } catch (error) {
+        console.error('게시물 목록 조회 실패:', error);
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [filters.sort, filters.categoryId, filters.regionId]);
+
   const filteredAndSortedPosts = useMemo(() => {
-    let result = [...posts]; // DUMMY_POSTS 대신 state인 posts 사용
-
-    if (filters.regionId) {
-      result = result.filter((p) => String(p.regionId) === String(filters.regionId));
-    } else if (filters.countryId) {
-      result = result.filter((p) => String(p.countryId) === String(filters.countryId));
-    }
-
-    if (filters.categoryId) {
-      result = result.filter((p) => p.categoryId === filters.categoryId);
-    }
-
-    switch (filters.sort) {
-      case 'likeCount':
-        result.sort((a, b) => b.likeCount - a.likeCount);
-        break;
-      case 'likeCount,asc':
-        result.sort((a, b) => a.likeCount - b.likeCount);
-        break;
-      case 'createdAt':
-      default:
-        result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-    }
-    return result;
-  }, [filters, posts]); // posts가 변경될 때도 리렌더링하도록 의존성 배열에 추가
+    return posts; // API에서 이미 필터링/정렬된 데이터를 받으므로 그대로 사용
+  }, [posts]);
 
   return (
     <>
@@ -89,7 +95,11 @@ export default function BoardContent() {
         activeCategoryId={filters.categoryId}
       />
       <div className="flex flex-col">
-        {filteredAndSortedPosts.length > 0 ? (
+        {isLoading ? (
+          <div className="py-20 text-center text-gray-500">
+            <p>게시물을 불러오는 중...</p>
+          </div>
+        ) : filteredAndSortedPosts.length > 0 ? (
           filteredAndSortedPosts.map((post) => (
             <PostItem
               key={post.postId}
