@@ -3,22 +3,22 @@ import {ChevronDown, Upload, X} from 'lucide-react';
 import {LOCATIONS, CATEGORIES_WITH_SELECT} from '../../../data/boardData';
 
 export default function PostForm({
-  postData,
-  images,
-  availableRegions,
-  fileInputRef,
-  handleInputChange,
-  handleCountryChange,
-  handleImageUpload,
-  handleImageDelete,
-  handleSubmit,
+                                     postData,
+                                     images,
+                                     availableRegions,
+                                     fileInputRef,
+                                     handleInputChange,
+                                     handleCountryChange,
+                                     handleImageUpload,
+                                     handleImageDelete,
+                                     handleSubmit,
   userName,
-}) {
-  const today = new Date().toLocaleDateString('ko-KR').slice(0, -1);
+                                 }) {
+    const today = new Date().toLocaleDateString('ko-KR').slice(0, -1);
 
   return (
     <form id="create-post-form" onSubmit={handleSubmit} className="p-4 space-y-4">
-      <div className="text-sm">
+            <div className="text-sm">
         <div className="flex">
           <span className="w-16 font-semibold text-gray-600">작성자</span>
           <span>{userName || '사용자'}</span>
@@ -26,9 +26,9 @@ export default function PostForm({
         <div className="flex mt-1">
           <span className="w-16 font-semibold text-gray-600">작성날짜</span>
           <span>{today}</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-2.5">
+                </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
         <div className="relative">
           <select
             onChange={handleCountryChange}
@@ -43,12 +43,12 @@ export default function PostForm({
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
             <ChevronDown size={16} />
           </div>
-        </div>
+                </div>
         <div className="relative">
           <select
             name="regionId"
             value={postData.regionId}
-            onChange={handleInputChange}
+                                                  onChange={handleInputChange}
             className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {availableRegions.map((region) => (
@@ -60,12 +60,12 @@ export default function PostForm({
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
             <ChevronDown size={16} />
           </div>
-        </div>
+                </div>
         <div className="relative">
           <select
             name="categoryId"
             value={postData.categoryId}
-            onChange={handleInputChange}
+                                                  onChange={handleInputChange}
             className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {CATEGORIES_WITH_SELECT.map((cat) => (
@@ -77,8 +77,8 @@ export default function PostForm({
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
             <ChevronDown size={16} />
           </div>
-        </div>
-      </div>
+                </div>
+            </div>
       <textarea
         name="content"
         value={postData.content}
@@ -108,7 +108,7 @@ export default function PostForm({
                 className="absolute right-1 top-1 rounded-full bg-black/50 p-0.5 text-white hover:bg-black/70"
               >
                 <X size={14} />
-              </button>
+                </button>
             </div>
           ))}
         </div>

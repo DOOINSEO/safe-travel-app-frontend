@@ -131,6 +131,66 @@ export const createPost = async (postData) => {
   throw new Error(result.message || '게시물 작성에 실패했습니다.');
 };
 
+// 게시물 수정
+export const updatePost = async (postId, postData) => {
+  const formData = new FormData();
+
+  formData.append('content', postData.content.trim());
+  formData.append('categoryId', String(postData.categoryId));
+  formData.append('regionCode', String(postData.regionCode));
+
+  if (postData.images && postData.images.length > 0) {
+    postData.images.forEach((image, index) => {
+      if (image.file) {
+        formData.append(`images[${index}].file`, image.file);
+        formData.append(`images[${index}].order`, String(index));
+      } else if (image.imgPath || image.filePath) {
+        let imgPath = image.imgPath || image.filePath;
+
+        if (imgPath.startsWith('blob:')) {
+          return;
+        }
+
+        if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
+          if (imgPath.startsWith(API_BASE_URL)) {
+            imgPath = imgPath.replace(API_BASE_URL, '');
+          } else {
+            console.warn('외부 이미지 URL은 지원하지 않습니다:', imgPath);
+            return;
+          }
+        }
+        formData.append(`images[${index}].imgPath`, imgPath);
+        formData.append(`images[${index}].order`, String(index));
+      }
+    });
+  }
+
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+    method: 'PUT',
+    headers: {
+      ...(token && {Authorization: `Bearer ${token}`}),
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({message: '게시물 수정에 실패했습니다.'}));
+    throw new Error(errorData.message || '게시물 수정에 실패했습니다.');
+  }
+
+  const result = await response.json();
+  if (result.isSuccess && result.data) {
+    return transformPost(result.data);
+  }
+  throw new Error(result.message || '게시물 수정에 실패했습니다.');
+};
+
+// 게시물 삭제
+export const deletePost = async (postId) => {
+  await apiClient.delete(`/posts/${postId}`);
+};
+
 export const toggleLike = async (postId) => {
   // TODO: 서버에 좋아요 API가 구현되면 추가
   // 현재는 클라이언트에서만 상태 관리

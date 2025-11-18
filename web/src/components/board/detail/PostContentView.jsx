@@ -8,41 +8,42 @@ export default function PostContentView({
   comments,
   isEditing,
   isOwner,
+  isSaving = false,
   editedState, // 수정 관련 상태들을 객체로 받음
   editHandlers, // 수정 관련 핸들러들을 객체로 받음
   fileInputRef,
 }) {
-  // Props de-structuring for cleaner access
-  const {
-    editedContent,
-    editedImages,
-    editedCategoryId,
-    editedLocationId,
-    selectedCountryNameForEdit,
+    // Props de-structuring for cleaner access
+    const {
+        editedContent,
+        editedImages,
+        editedCategoryId,
+        editedLocationId,
+        selectedCountryNameForEdit,
     availableRegionsForEdit,
-  } = editedState;
-  const {
-    setEditedContent,
-    handleImageDelete,
-    handleImageUpload,
-    handleSaveEdit,
-    handleStartEdit,
-    setIsDeleteModalOpen,
-    handleLikeToggle,
-    handleCountryChangeForEdit,
-    setEditedLocationId,
+    } = editedState;
+    const {
+        setEditedContent,
+        handleImageDelete,
+        handleImageUpload,
+        handleSaveEdit,
+        handleStartEdit,
+        setIsDeleteModalOpen,
+        handleLikeToggle,
+        handleCountryChangeForEdit,
+        setEditedLocationId,
     setEditedCategoryId,
-  } = editHandlers;
+    } = editHandlers;
 
   return (
     <>
       {isEditing ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-3 gap-2.5">
             <div className="relative">
               <select
                 value={selectedCountryNameForEdit}
-                onChange={handleCountryChangeForEdit}
+                                                          onChange={handleCountryChangeForEdit}
                 className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {LOCATIONS.map((loc) => (
@@ -54,11 +55,11 @@ export default function PostContentView({
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <ChevronDown size={16} />
               </div>
-            </div>
+                        </div>
             <div className="relative">
               <select
                 value={editedLocationId}
-                onChange={(e) => setEditedLocationId(e.target.value)}
+                                                          onChange={(e) => setEditedLocationId(e.target.value)}
                 className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {availableRegionsForEdit.map((region) => (
@@ -70,11 +71,11 @@ export default function PostContentView({
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <ChevronDown size={16} />
               </div>
-            </div>
+                        </div>
             <div className="relative">
               <select
                 value={editedCategoryId}
-                onChange={(e) => setEditedCategoryId(e.target.value)}
+                                                          onChange={(e) => setEditedCategoryId(e.target.value)}
                 className="w-full appearance-none rounded-md border border-gray-300 bg-white p-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {CATEGORIES_WITH_SELECT.map((cat) => (
@@ -86,12 +87,12 @@ export default function PostContentView({
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <ChevronDown size={16} />
               </div>
-            </div>
-          </div>
+                        </div>
+                    </div>
           <textarea
             value={editedContent}
             onChange={(e) => setEditedContent(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full rounded-lg border border-gray-300 p-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows="10"
           />
         </div>
@@ -101,8 +102,8 @@ export default function PostContentView({
 
       <ImageSlider images={isEditing ? editedImages : post.images} isEditing={isEditing} onDelete={handleImageDelete} />
 
-      <div className="mt-4 flex items-center justify-between pb-4">
-        <div className="flex items-center space-x-4 text-gray-600">
+            <div className="mt-4 flex items-center justify-between pb-4">
+                <div className="flex items-center space-x-4 text-gray-600">
           <button
             onClick={handleLikeToggle}
             className={`flex items-center gap-1 transition-colors ${
@@ -114,9 +115,9 @@ export default function PostContentView({
           </button>
           <div className="flex items-center gap-1">
             <MessageSquare size={18} /> <span>{comments.length}</span>
-          </div>
-        </div>
-      </div>
+                    </div>
+                </div>
+            </div>
 
       {isOwner && (
         <div className="mt-4 flex justify-end gap-4">
@@ -128,22 +129,26 @@ export default function PostContentView({
                 className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:underline"
               >
                 <Upload size={16} /> 사진 업로드
-              </button>
-              <button onClick={handleSaveEdit} className="text-sm font-semibold text-blue-600 hover:underline">
-                저장
+                            </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSaving}
+                className="text-sm font-semibold text-blue-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? '저장 중...' : '저장'}
               </button>
             </>
           ) : (
             <>
               <button onClick={handleStartEdit} className="text-sm font-semibold text-gray-600 hover:underline">
                 수정
-              </button>
+                            </button>
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
                 className="text-sm font-semibold text-red-600 hover:underline"
               >
                 삭제
-              </button>
+                            </button>
             </>
           )}
         </div>

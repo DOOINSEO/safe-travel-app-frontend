@@ -3,12 +3,12 @@ import {useNavigate, useParams} from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import CommentSection from '../components/board/CommentSection';
 import ConfirmModal from '../components/common/ConfirmModal';
-import PostHeader from '../components/board/detail/PostHeader'; // ✨ 분리된 헤더 import
-import PostContentView from '../components/board/detail/PostContentView'; // ✨ 분리된 컨텐츠 import
+import PostHeader from '../components/board/detail/PostHeader';
+import PostContentView from '../components/board/detail/PostContentView';
 import {Frown, Send} from 'lucide-react';
 import {DUMMY_COMMENTS} from '../data/dummyData';
-import {EDIT_LOCATIONS, CATEGORIES} from '../data/boardData';
-import {getPost} from '../services/postApi';
+import {getPost, deletePost} from '../services/postApi';
+import {usePostEdit} from '../hooks/usePostEdit';
 
 export default function PostDetailPage() {
   const {postId} = useParams();
@@ -20,17 +20,17 @@ export default function PostDetailPage() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState('');
-  const [editedImages, setEditedImages] = useState([]);
-  const [editedCategoryId, setEditedCategoryId] = useState('');
-  const [editedLocationId, setEditedLocationId] = useState('');
-  const [selectedCountryNameForEdit, setSelectedCountryNameForEdit] = useState('');
-  const [availableRegionsForEdit, setAvailableRegionsForEdit] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  // 수정 관련 로직을 커스텀 훅으로 분리
+  const editHook = usePostEdit(
+    post,
+    (updatedPost) => setPost(updatedPost),
+    (errorMessage) => setError(errorMessage)
+  );
 
   // 현재 사용자 ID 가져오기
   useEffect(() => {
@@ -78,16 +78,6 @@ export default function PostDetailPage() {
 
     fetchPost();
   }, [postId]);
-
-  useEffect(() => {
-    return () => {
-      editedImages.forEach((image) => {
-        if (image.previewUrl && image.file) {
-          URL.revokeObjectURL(image.previewUrl);
-        }
-      });
-    };
-  }, [editedImages]);
 
   // 로딩 중
   if (isLoading) {
@@ -141,86 +131,44 @@ export default function PostDetailPage() {
     setComments((prev) => [...prev, newCommentData]);
     setNewComment('');
   };
-  const handleStartEdit = () => {
-    setEditedContent(post.content);
-    setEditedImages(post.images);
-    setEditedCategoryId(post.categoryId);
-    setEditedLocationId(post.regionId);
-    const currentCountry = EDIT_LOCATIONS.find((c) => c.id === post.countryId);
-    if (currentCountry) {
-      setSelectedCountryNameForEdit(currentCountry.country);
-      setAvailableRegionsForEdit(currentCountry.regions);
+
+  const handleDeletePost = async () => {
+    if (!post) return;
+
+    try {
+      setError(null);
+      
+      await deletePost(post.postId);
+      
+      // 성공 시 게시판으로 이동
+      setIsDeleteModalOpen(false);
+      navigate('/board');
+    } catch (err) {
+      console.error('게시물 삭제 실패:', err);
+      setError(err.message || '게시물 삭제에 실패했습니다.');
+      setIsDeleteModalOpen(false);
     }
-    setIsEditing(true);
-  };
-  const handleSaveEdit = () => {
-    const finalImages = editedImages.map((img, i) =>
-      img.file
-        ? {
-            imageId: Math.random(),
-            postId: post.postId,
-            imgPath: img.previewUrl,
-            order: i,
-          }
-        : {...img, order: i}
-    );
-    const updatedCategory = CATEGORIES.find((c) => c.id === parseInt(editedCategoryId, 10));
-    const updatedCountry = EDIT_LOCATIONS.find((c) => c.country === selectedCountryNameForEdit);
-    const updatedRegion = updatedCountry?.regions.find((r) => r.id === editedLocationId);
-    setPost((prev) => ({
-      ...prev,
-      content: editedContent,
-      images: finalImages,
-      categoryId: updatedCategory.id,
-      categoryName: updatedCategory.name,
-      countryId: updatedCountry.id,
-      regionId: updatedRegion.id,
-      country: updatedCountry.country,
-      region: updatedRegion.name,
-    }));
-    setIsEditing(false);
-  };
-  const handleImageDelete = (id) => setEditedImages((prev) => prev.filter((img) => (img.id || img.imageId) !== id));
-  const handleImageUpload = (e) => {
-    const newImages = Array.from(e.target.files).map((file) => ({
-      id: Math.random(),
-      previewUrl: URL.createObjectURL(file),
-      file,
-    }));
-    setEditedImages((prev) => [...prev, ...newImages]);
-  };
-  const handleDeletePost = () => {
-    console.log(`Post ID: ${post.postId} 삭제됨`);
-    setIsDeleteModalOpen(false);
-    navigate('/board');
-  };
-  const handleCountryChangeForEdit = (e) => {
-    const name = e.target.value;
-    setSelectedCountryNameForEdit(name);
-    const data = EDIT_LOCATIONS.find((c) => c.country === name);
-    setAvailableRegionsForEdit(data ? data.regions : []);
-    setEditedLocationId('');
   };
 
   const editedState = {
-    editedContent,
-    editedImages,
-    editedCategoryId,
-    editedLocationId,
-    selectedCountryNameForEdit,
-    availableRegionsForEdit,
+    editedContent: editHook.editedContent,
+    editedImages: editHook.editedImages,
+    editedCategoryId: editHook.editedCategoryId,
+    editedLocationId: editHook.editedLocationId,
+    selectedCountryNameForEdit: editHook.selectedCountryNameForEdit,
+    availableRegionsForEdit: editHook.availableRegionsForEdit,
   };
   const editHandlers = {
-    setEditedContent,
-    handleImageDelete,
-    handleImageUpload,
-    handleSaveEdit,
-    handleStartEdit,
+    setEditedContent: editHook.setEditedContent,
+    handleImageDelete: editHook.handleImageDelete,
+    handleImageUpload: editHook.handleImageUpload,
+    handleSaveEdit: editHook.handleSaveEdit,
+    handleStartEdit: editHook.handleStartEdit,
     setIsDeleteModalOpen,
     handleLikeToggle,
-    handleCountryChangeForEdit,
-    setEditedLocationId,
-    setEditedCategoryId,
+    handleCountryChangeForEdit: editHook.handleCountryChangeForEdit,
+    setEditedLocationId: editHook.setEditedLocationId,
+    setEditedCategoryId: editHook.setEditedCategoryId,
   };
 
   return (
@@ -231,11 +179,17 @@ export default function PostDetailPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="p-4">
           <PostHeader post={post} />
+          {error && (
+            <div className="mb-4 rounded-md border border-red-400 bg-red-100 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
           <PostContentView
             post={post}
             comments={comments}
-            isEditing={isEditing}
+            isEditing={editHook.isEditing}
             isOwner={isOwner}
+            isSaving={editHook.isSaving}
             editedState={editedState}
             editHandlers={editHandlers}
             fileInputRef={fileInputRef}
