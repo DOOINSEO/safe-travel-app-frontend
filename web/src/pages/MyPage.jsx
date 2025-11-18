@@ -3,46 +3,97 @@ import PageHeader from '../components/common/PageHeader';
 import UserProfileSection from '../components/mypage/UserProfileSection';
 import EmergencySetupSection from '../components/mypage/EmergencySetupSection';
 import MessageEditor from '../components/mypage/MessageEditor';
-import ContactList from '../components/mypage/ContactList';
-import { getUserAccountData } from '../services/accountApi';
-import { useEmergencyMessage } from '../hooks/useEmergencyMessage';
+import ContactInput from '../components/mypage/ContactList';
+import { getEmergency, createEmergency, updateEmergency, deleteEmergency } from '../services/accountApi';
+import AlertModal from '../components/common/AlertModal';
 
-/**
- * '내 정보' 페이지입니다.
- */
 export default function MyPage() {
-    const [userName, setUserName] = useState('사용자');
-    const [contacts, setContacts] = useState([]);
-    const [initialMessage, setInitialMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-
-    const { emergencyMessage, setEmergencyMessage } = useEmergencyMessage(initialMessage, isLoading);
+    const [nickname, setNickname] = useState('');
+    const [emergencyMessage, setEmergencyMessage] = useState('');
+    const [emergencyPhone, setEmergencyPhone] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [hasExistingData, setHasExistingData] = useState(false);
+    const [alertInfo, setAlertInfo] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+    });
 
     useEffect(() => {
-        const fetchInitialData = async () => {
+        const fetchEmergencyData = async () => {
             try {
-                const data = await getUserAccountData();
-                setContacts(data.contacts);
-                setInitialMessage(data.emergencyMessage);
-
-                // TODO: 로그인 기능 구현 후, 전역 상태에서 실제 사용자 닉네임을 가져와야 합니다.
-                setUserName('홍길동');
+                setIsInitialLoading(true);
+                const response = await getEmergency();
+                const data = response?.data || response;
+                
+                if (data) {
+                    setNickname(data.nickname || '');
+                    setEmergencyMessage(data.message || '');
+                    setEmergencyPhone(data.phone || '');
+                    setHasExistingData(!!(data.message || data.phone));
+                }
             } catch (error) {
-                console.error("초기 데이터 로딩 실패:", error);
-                // TODO: 사용자에게 데이터 로딩 실패를 알리는 UI(예: 토스트 메시지)를 보여주는 것이 좋습니다.
+                console.error('비상 연락망 조회 실패:', error);
             } finally {
-                setIsLoading(false);
+                setIsInitialLoading(false);
             }
         };
-        fetchInitialData();
+
+        fetchEmergencyData();
     }, []);
 
-    if (isLoading) {
+    const handleSave = async () => {
+        if (!emergencyMessage && !emergencyPhone) {
+            setAlertInfo({ isOpen: true, title: '알림', message: '메시지 또는 연락처를 입력해주세요.' });
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const data = {
+                message: emergencyMessage,
+                phone: emergencyPhone,
+            };
+
+            if (hasExistingData) {
+                await updateEmergency(data);
+            } else {
+                await createEmergency(data);
+            }
+            
+            setHasExistingData(true);
+            setAlertInfo({ isOpen: true, title: '성공', message: '비상 연락망이 저장되었습니다.' });
+        } catch (error) {
+            console.error('비상 연락망 저장 실패:', error);
+            setAlertInfo({ isOpen: true, title: '오류', message: error.message || '저장에 실패했습니다.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleReset = async () => {
+        try {
+            setIsLoading(true);
+            await deleteEmergency();
+            setEmergencyMessage('');
+            setEmergencyPhone('');
+            setHasExistingData(false);
+            setAlertInfo({ isOpen: true, title: '성공', message: '비상 연락망이 초기화되었습니다.' });
+        } catch (error) {
+            console.error('비상 연락망 초기화 실패:', error);
+            setAlertInfo({ isOpen: true, title: '오류', message: error.message || '초기화에 실패했습니다.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isInitialLoading) {
         return (
             <div className="min-h-screen bg-white">
                 <PageHeader title="내 정보" backPath="/" />
                 <div className="flex h-64 items-center justify-center">
-                    <p>데이터를 불러오는 중입니다...</p>
+                    <p>데이터를 불러오는 중...</p>
                 </div>
             </div>
         );
@@ -51,7 +102,7 @@ export default function MyPage() {
     return (
         <div className="min-h-screen bg-white">
             <PageHeader title="내 정보" backPath="/" />
-            <UserProfileSection userName={userName} />
+            <UserProfileSection userName={nickname || '사용자'} />
             <div className="border-b border-gray-200" />
 
             <main className="flex flex-col px-[20px] pt-5">
@@ -60,12 +111,42 @@ export default function MyPage() {
                     emergencyMessage={emergencyMessage}
                     setEmergencyMessage={setEmergencyMessage}
                 />
-                <ContactList
-                    contacts={contacts}
-                    setContacts={setContacts} // 연락처 추가/삭제 로직은 ContactList 내부에서 처리
+                <ContactInput
+                    phone={emergencyPhone}
+                    onPhoneChange={setEmergencyPhone}
                 />
+
+                <div className="mt-8 w-full">
+                    <div className="flex w-full gap-x-4">
+                        <button
+                            type="button"
+                            onClick={handleReset}
+                            disabled={isLoading}
+                            className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-bold text-gray-700 disabled:opacity-50"
+                        >
+                            초기화
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={isLoading}
+                            className="flex-1 rounded-lg bg-black py-3 text-base font-bold text-white disabled:opacity-50"
+                        >
+                            저장
+                        </button>
+                    </div>
+                </div>
+
                 <div className="h-[15px]" />
             </main>
+
+            <AlertModal
+                isOpen={alertInfo.isOpen}
+                onClose={() => setAlertInfo({ isOpen: false, title: '', message: '' })}
+                title={alertInfo.title}
+            >
+                {alertInfo.message}
+            </AlertModal>
         </div>
     );
 }

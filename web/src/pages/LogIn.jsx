@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthInput } from '../components/auth/AuthInput';
 import AuthButton from '../components/auth/AuthButton';
 import { useLogin } from '../hooks/useLogin';
+import useAuthStore from '../stores/authStore';
 
 export default function LogIn() {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuthStore();
     const [loginId, setLoginId] = useState('');
     const [password, setPassword] = useState('');
     const { loginUser } = useLogin();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleLogin = (e) => {
         e.preventDefault();

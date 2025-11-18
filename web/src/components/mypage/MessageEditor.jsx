@@ -1,16 +1,17 @@
 import React from 'react';
 
-/**
- * '내 정보' 페이지의 비상 메시지를 입력하고 수정하는 제어(controlled) 텍스트 편집기입니다.
- */
 export default function MessageEditor({ emergencyMessage, setEmergencyMessage }) {
     return (
-        <section className="mt-5">
+        <section className="mt-5 w-full">
+            <label htmlFor="emergencyMessage" className="block text-sm font-medium text-gray-700">
+                비상 메시지
+            </label>
             <textarea
+                id="emergencyMessage"
                 value={emergencyMessage}
                 onChange={(e) => setEmergencyMessage(e.target.value)}
                 placeholder="내용을 입력해주세요."
-                className="h-[200px] w-full resize-none rounded-[20px] border border-black bg-white p-5 text-sm placeholder:text-center focus:border-black focus:outline-none"
+                className="mt-1 block h-[200px] w-full resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
             />
         </section>
     );
