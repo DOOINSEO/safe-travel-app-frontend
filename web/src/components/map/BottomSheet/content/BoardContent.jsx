@@ -1,48 +1,44 @@
-import React, { useState, useMemo } from 'react';
+import React, {useMemo, useState} from 'react';
 // --- 수정된 경로 ---
 import FilterBar from '../../../board/FilterBar';
 import PostItem from '../../../board/PostItem';
 import FloatingWriteButton from '../../../board/FloatingWriteButton';
-import { DUMMY_POSTS } from '../../../../data/dummyData';
+import {DUMMY_POSTS} from '../../../../data/dummyData';
 
 /**
  * 지도 바텀시트 내부에 표시될 게시판 컨텐츠 컴포넌트입니다.
  * @param {object} props
  * @param {object | null} props.regionData - 지도에서 선택된 지역(폴리곤)의 데이터
  */
-export default function BoardContent({ regionData }) {
+export default function BoardContent({regionData}) {
     // DUMMY_POSTS를 state로 관리하여 좋아요 상태 변경을 반영합니다.
     const [posts, setPosts] = useState(DUMMY_POSTS);
     const [filters, setFilters] = useState({
-        sort: 'createdAt',
-        categoryId: null,
+        sort: 'createdAt', categoryId: null,
     });
 
     const handleSortChange = (sortValue) => {
-        setFilters(prev => ({ ...prev, sort: sortValue }));
+        setFilters(prev => ({...prev, sort: sortValue}));
     };
 
     const handleCategoryToggle = (clickedCategoryId) => {
         setFilters(prev => ({
-            ...prev,
-            categoryId: prev.categoryId === clickedCategoryId ? null : clickedCategoryId
+            ...prev, categoryId: prev.categoryId === clickedCategoryId ? null : clickedCategoryId
         }));
     };
 
     // 게시글 추천 상태를 토글하는 함수
     const handleLikeToggle = (postId) => {
-        setPosts(currentPosts =>
-            currentPosts.map(p => {
-                if (p.postId === postId) {
-                    return {
-                        ...p,
-                        isLike: !p.isLike,
-                        likeCount: p.isLike ? p.isLike ? p.likeCount - 1 : p.likeCount + 1 : p.likeCount,
-                    };
-                }
-                return p;
-            })
-        );
+        setPosts(currentPosts => currentPosts.map(p => {
+            if (p.postId === postId) {
+                return {
+                    ...p,
+                    isLike: !p.isLike,
+                    likeCount: p.isLike ? p.isLike ? p.likeCount - 1 : p.likeCount + 1 : p.likeCount,
+                };
+            }
+            return p;
+        }));
     };
 
     // 선택된 지역에 따라 게시물을 필터링하고 정렬합니다.
@@ -78,15 +74,12 @@ export default function BoardContent({ regionData }) {
     }, [regionData, filters, posts]);
 
     if (!regionData) {
-        return (
-            <div className="flex h-full items-center justify-center text-gray-500">
+        return (<div className="flex h-full items-center justify-center text-gray-500">
                 <p>지도에서 지역을 선택하여 게시물을 확인하세요.</p>
-            </div>
-        );
+            </div>);
     }
 
-    return (
-        <>
+    return (<>
             <div className="px-4 pt-2 pb-1">
                 <h2 className="text-xl font-bold">{regionData.nameKo} 게시물</h2>
             </div>
@@ -99,22 +92,15 @@ export default function BoardContent({ regionData }) {
             />
 
             <div className="flex flex-col">
-                {filteredAndSortedPosts.length > 0 ? (
-                    filteredAndSortedPosts.map(post => (
-                        <PostItem
+                {filteredAndSortedPosts.length > 0 ? (filteredAndSortedPosts.map(post => (<PostItem
                             key={post.postId}
                             post={post}
                             handleLikeToggle={handleLikeToggle}
-                        />
-                    ))
-                ) : (
-                    <div className="py-20 text-center text-gray-500">
+                        />))) : (<div className="py-20 text-center text-gray-500">
                         <p>이 지역에 등록된 게시글이 없습니다.</p>
-                    </div>
-                )}
+                    </div>)}
             </div>
 
-            <FloatingWriteButton />
-        </>
-    );
+            <FloatingWriteButton/>
+        </>);
 }

@@ -1,53 +1,45 @@
-import React, { useState, useMemo } from 'react';
+import React, {useMemo, useState} from 'react';
 import LocationSelector from './LocationSelector';
 import FilterBar from './FilterBar';
 import PostItem from './PostItem';
 import FloatingWriteButton from './FloatingWriteButton';
-import { DUMMY_POSTS } from '../../data/dummyData';
+import {DUMMY_POSTS} from '../../data/dummyData';
 
 export default function BoardContent() {
     // DUMMY_POSTS를 state로 관리하여 좋아요 상태 변경을 반영합니다.
     const [posts, setPosts] = useState(DUMMY_POSTS);
     const [filters, setFilters] = useState({
-        countryId: null,
-        regionId: null,
-        sort: 'createdAt',
-        categoryId: null,
+        countryId: null, regionId: null, sort: 'createdAt', categoryId: null,
     });
 
     const handleCountryChange = (countryId) => {
-        setFilters(prev => ({ ...prev, countryId, regionId: null }));
+        setFilters(prev => ({...prev, countryId, regionId: null}));
     };
 
     const handleRegionChange = (regionId) => {
-        setFilters(prev => ({ ...prev, regionId }));
+        setFilters(prev => ({...prev, regionId}));
     };
 
     const handleSortChange = (sortValue) => {
-        setFilters(prev => ({ ...prev, sort: sortValue }));
+        setFilters(prev => ({...prev, sort: sortValue}));
     };
 
     const handleCategoryToggle = (clickedCategoryId) => {
         setFilters(prev => ({
-            ...prev,
-            categoryId: prev.categoryId === clickedCategoryId ? null : clickedCategoryId
+            ...prev, categoryId: prev.categoryId === clickedCategoryId ? null : clickedCategoryId
         }));
     };
 
     // 게시글 추천 상태를 토글하는 함수
     const handleLikeToggle = (postId) => {
-        setPosts(currentPosts =>
-            currentPosts.map(p => {
-                if (p.postId === postId) {
-                    return {
-                        ...p,
-                        isLike: !p.isLike,
-                        likeCount: p.isLike ? p.likeCount - 1 : p.likeCount + 1,
-                    };
-                }
-                return p;
-            })
-        );
+        setPosts(currentPosts => currentPosts.map(p => {
+            if (p.postId === postId) {
+                return {
+                    ...p, isLike: !p.isLike, likeCount: p.isLike ? p.likeCount - 1 : p.likeCount + 1,
+                };
+            }
+            return p;
+        }));
     };
 
     const filteredAndSortedPosts = useMemo(() => {
@@ -78,8 +70,7 @@ export default function BoardContent() {
         return result;
     }, [filters, posts]); // posts가 변경될 때도 리렌더링하도록 의존성 배열에 추가
 
-    return (
-        <>
+    return (<>
             <LocationSelector
                 onCountryChange={handleCountryChange}
                 onRegionChange={handleRegionChange}
@@ -91,22 +82,15 @@ export default function BoardContent() {
                 activeCategoryId={filters.categoryId}
             />
             <div className="flex flex-col">
-                {filteredAndSortedPosts.length > 0 ? (
-                    filteredAndSortedPosts.map(post => (
-                        <PostItem
+                {filteredAndSortedPosts.length > 0 ? (filteredAndSortedPosts.map(post => (<PostItem
                             key={post.postId}
                             post={post}
                             handleLikeToggle={handleLikeToggle} // 함수 전달
-                        />
-                    ))
-                ) : (
-                    <div className="py-20 text-center text-gray-500">
+                        />))) : (<div className="py-20 text-center text-gray-500">
                         <p>조건에 맞는 게시글이 없습니다.</p>
-                    </div>
-                )}
+                    </div>)}
             </div>
 
-            <FloatingWriteButton />
-        </>
-    );
+            <FloatingWriteButton/>
+        </>);
 }

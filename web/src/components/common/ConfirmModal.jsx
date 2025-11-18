@@ -1,5 +1,5 @@
 import React from 'react';
-import { createPortal } from 'react-dom'; // React Portals import
+import {createPortal} from 'react-dom'; // React Portals import
 
 /**
  * 사용자에게 중요한 작업을 재확인받기 위한 공통 모달입니다.
@@ -16,12 +16,9 @@ export default function ConfirmModal({
                                      }) {
     if (!isOpen) return null;
 
-    const confirmButtonClasses = intent === 'destructive'
-        ? 'bg-red-600 hover:bg-red-700'
-        : 'bg-blue-600 hover:bg-blue-700'; // 프로젝트의 기본 Primary 색상으로 변경 가능
+    const confirmButtonClasses = intent === 'destructive' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'; // 프로젝트의 기본 Primary 색상으로 변경 가능
 
-    const modalContent = (
-        <div
+    const modalContent = (<div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
             onClick={onClose}
         >
@@ -46,8 +43,7 @@ export default function ConfirmModal({
                     </button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 
     return createPortal(modalContent, document.body);
 }
