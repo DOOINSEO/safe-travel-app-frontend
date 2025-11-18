@@ -1,0 +1,67 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'; // X 아이콘 import
+
+// isEditing, onDelete props를 추가로 받습니다.
+export default function ImageSlider({ images, isEditing = false, onDelete }) {
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    // 이미지가 변경될 때 currentIndex를 0으로 리셋 (예: 삭제 후)
+    useEffect(() => {
+        setCurrentIndex(0);
+    }, [images]);
+
+    if (!images || images.length === 0) {
+        return (
+            <div className="flex h-64 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                이미지 없음
+            </div>
+        );
+    }
+
+    const goToPrevious = () => {
+        const isFirstSlide = currentIndex === 0;
+        const newIndex = isFirstSlide ? images.length - 1 : currentIndex - 1;
+        setCurrentIndex(newIndex);
+    };
+
+    const goToNext = () => {
+        const isLastSlide = currentIndex === images.length - 1;
+        const newIndex = isLastSlide ? 0 : currentIndex + 1;
+        setCurrentIndex(newIndex);
+    };
+
+    const currentImage = images[currentIndex];
+
+    return (
+        <div className="relative h-64 w-full">
+            <img
+                // --- 수정된 부분: 이미지 객체 구조 변경에 대응 ---
+                // 기존 이미지(imgPath)와 새로 추가된 이미지(previewUrl)를 모두 처리
+                src={currentImage.imgPath || currentImage.previewUrl}
+                alt={`Slide ${currentIndex + 1}`}
+                className="h-full w-full rounded-lg object-cover"
+            />
+            {images.length > 1 && (
+                <>
+                    <button onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-1 text-white hover:bg-black/50">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-1 text-white hover:bg-black/50">
+                        <ChevronRight size={24} />
+                    </button>
+                </>
+            )}
+
+            {/* --- 추가된 부분: isEditing 모드일 때만 'X' 삭제 버튼 표시 --- */}
+            {isEditing && (
+                <button
+                    onClick={() => onDelete(currentImage.id || currentImage.imageId)}
+                    className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                    aria-label="이미지 삭제"
+                >
+                    <X size={16} />
+                </button>
+            )}
+        </div>
+    );
+}

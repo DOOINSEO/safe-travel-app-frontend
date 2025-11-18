@@ -1,22 +1,27 @@
 import React, { useState, useMemo } from 'react';
-// --- 수정된 경로 ---
-import FilterBar from '../../../board/FilterBar';
-import PostItem from '../../../board/PostItem';
-import FloatingWriteButton from '../../../board/FloatingWriteButton';
-import { DUMMY_POSTS } from '../../../../data/dummyData';
+import LocationSelector from './LocationSelector';
+import FilterBar from './FilterBar';
+import PostItem from './PostItem';
+import FloatingWriteButton from './FloatingWriteButton';
+import { DUMMY_POSTS } from '../../data/dummyData';
 
-/**
- * 지도 바텀시트 내부에 표시될 게시판 컨텐츠 컴포넌트입니다.
- * @param {object} props
- * @param {object | null} props.regionData - 지도에서 선택된 지역(폴리곤)의 데이터
- */
-export default function BoardContent({ regionData }) {
+export default function BoardContent() {
     // DUMMY_POSTS를 state로 관리하여 좋아요 상태 변경을 반영합니다.
     const [posts, setPosts] = useState(DUMMY_POSTS);
     const [filters, setFilters] = useState({
+        countryId: null,
+        regionId: null,
         sort: 'createdAt',
         categoryId: null,
     });
+
+    const handleCountryChange = (countryId) => {
+        setFilters(prev => ({ ...prev, countryId, regionId: null }));
+    };
+
+    const handleRegionChange = (regionId) => {
+        setFilters(prev => ({ ...prev, regionId }));
+    };
 
     const handleSortChange = (sortValue) => {
         setFilters(prev => ({ ...prev, sort: sortValue }));
@@ -37,7 +42,7 @@ export default function BoardContent({ regionData }) {
                     return {
                         ...p,
                         isLike: !p.isLike,
-                        likeCount: p.isLike ? p.isLike ? p.likeCount - 1 : p.likeCount + 1 : p.likeCount,
+                        likeCount: p.isLike ? p.likeCount - 1 : p.likeCount + 1,
                     };
                 }
                 return p;
@@ -45,18 +50,14 @@ export default function BoardContent({ regionData }) {
         );
     };
 
-    // 선택된 지역에 따라 게시물을 필터링하고 정렬합니다.
     const filteredAndSortedPosts = useMemo(() => {
-        if (!regionData) {
-            return [];
-        }
+        let result = [...posts]; // DUMMY_POSTS 대신 state인 posts 사용
 
-        // DUMMY_POSTS의 locationId와 GADM 데이터의 id를 일치시켜야 합니다.
-        // 현재 더미데이터는 101, 201과 같은 ID를 사용하고 있으므로,
-        // GADM 데이터의 id 체계를 확인하고 DUMMY_POSTS의 locationId를 맞춰주어야 합니다.
-        // 여기서는 임시로 regionData의 nameKo와 post의 locationName을 비교하여 필터링하겠습니다.
-        // (가장 좋은 방법은 ID를 일치시키는 것입니다)
-        let result = posts.filter(p => p.locationName.includes(regionData.nameKo));
+        if (filters.regionId) {
+            result = result.filter(p => p.locationId === filters.regionId);
+        } else if (filters.countryId) {
+            result = result.filter(p => p.countryId === filters.countryId);
+        }
 
         if (filters.categoryId) {
             result = result.filter(p => p.categoryId === filters.categoryId);
@@ -75,41 +76,32 @@ export default function BoardContent({ regionData }) {
                 break;
         }
         return result;
-    }, [regionData, filters, posts]);
-
-    if (!regionData) {
-        return (
-            <div className="flex h-full items-center justify-center text-gray-500">
-                <p>지도에서 지역을 선택하여 게시물을 확인하세요.</p>
-            </div>
-        );
-    }
+    }, [filters, posts]); // posts가 변경될 때도 리렌더링하도록 의존성 배열에 추가
 
     return (
         <>
-            <div className="px-4 pt-2 pb-1">
-                <h2 className="text-xl font-bold">{regionData.nameKo} 게시물</h2>
-            </div>
-
+            <LocationSelector
+                onCountryChange={handleCountryChange}
+                onRegionChange={handleRegionChange}
+            />
             <FilterBar
                 currentSort={filters.sort}
                 onSortChange={handleSortChange}
                 onCategoryToggle={handleCategoryToggle}
                 activeCategoryId={filters.categoryId}
             />
-
             <div className="flex flex-col">
                 {filteredAndSortedPosts.length > 0 ? (
                     filteredAndSortedPosts.map(post => (
                         <PostItem
                             key={post.postId}
                             post={post}
-                            handleLikeToggle={handleLikeToggle}
+                            handleLikeToggle={handleLikeToggle} // 함수 전달
                         />
                     ))
                 ) : (
                     <div className="py-20 text-center text-gray-500">
-                        <p>이 지역에 등록된 게시글이 없습니다.</p>
+                        <p>조건에 맞는 게시글이 없습니다.</p>
                     </div>
                 )}
             </div>
