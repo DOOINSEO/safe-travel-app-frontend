@@ -2,7 +2,7 @@
 <resources>
   <!-- 아래 app_package는 반드시 android package 이름과 동일하게 만들어야 한다(DO NOT DELETE !!!)-->
   <string name="app_package">mcore.mobile.app</string>
-  <string name="app_name">SW인재양성</string>
+  <string name="app_name">세이브팡팡</string>
   <string name="hello">Hello World, HybridMobileApp!</string>
   <string name="nbutton1">통신테스트</string>
   <string name="nbutton2">네이티브화면</string>
