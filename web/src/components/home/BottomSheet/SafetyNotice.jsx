@@ -4,20 +4,20 @@ import FlagIcon from '../../../assets/icons/icon-flag.svg';
 // 샘플 데이터
 const SampleData = [
   {
-    title: '[탄자니아] 탄자니아 선거 결과 발표 이후 재외국민 신변안전 유의',
-    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048141/detail',
+    title: '[캄보디아] 캄보디아 등 동남아지역 취업사기·감금 피해 주의',
+    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048110/detail',
   },
   {
-    title: '[이스라엘] 이스라엘 초정통파 유대인 단체 대규모 시위로 인한 교통혼잡 및 충돌 우려 관련',
-    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048137/detail',
+    title: '[태국] 태국-캄보디아 무력충돌 관련 안전 유의',
+    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048051/detail',
   },
   {
-    title: '[페루] 페루 리마 수도권 및 카야오 주 국가비상사태 선포에 따른 재외국민 안전 유의 안내',
-    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048130/detail',
+    title: "[캄보디아] 5개 재외공관에 대한 테러경보 상향 조치 - 테러경보 '관심'에서 '경계'로 상향",
+    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000009431/detail',
   },
   {
-    title: '[우간다] 우간다 캄팔라 수도권 흉기(마체테·팡가 등) 사용 강도 관련 (10.28)',
-    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000048135/detail',
+    title: '[전체국가] 캄보디아 등 동남아지역 취업사기·감금 피해 주의',
+    url: 'https://0404.go.kr/bbs/safetyNtc/ATC0000000009648/detail',
   },
 ];
 
