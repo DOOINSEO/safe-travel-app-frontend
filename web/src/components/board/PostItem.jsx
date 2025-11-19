@@ -37,7 +37,7 @@ export default function PostItem({post, handleLikeToggle}) {
 
   return (
     <Link to={`/board/${post.postId}`} className="block transition-colors hover:bg-gray-50">
-      <div className="border-t border-gray-200 bg-white p-4">
+      <div className="border-b border-gray-200 bg-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-bold text-gray-800">{post.userNickname}</span>

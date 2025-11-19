@@ -73,7 +73,7 @@ export default function HomePage() {
   }, []);
 
   // 10초마다 알림 팝업 표시
-  useNotificationPopup(10);
+  useNotificationPopup(1000);
 
   return (
     <div

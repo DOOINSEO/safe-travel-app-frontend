@@ -9,9 +9,13 @@ export default function BottomSheetContent() {
     <div className="flex flex-col h-full relative">
       {/* 스크롤 기반 */}
       <div className="flex-1 overflow-y-auto pb-20">
-        <div className="flex flex-col gap-6 p-5">
-          <SafetyReport />
-          <SafetyNotice />
+        <div className="flex flex-col">
+          <div className="p-4">
+            <SafetyReport />
+          </div>
+          <div className="p-4">
+            <SafetyNotice />
+          </div>
           <BoardSection />
         </div>
       </div>
