@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {getNews} from '../../../../services/newsApi';
-import {Newspaper} from 'lucide-react';
+import {BookAlert} from 'lucide-react';
 
 export default function NewsContent({region}) {
   const [newsData, setNewsData] = useState(null);
@@ -118,33 +118,31 @@ export default function NewsContent({region}) {
     <div className="pb-6">
       {/* 뉴스 목록 */}
       <div className="px-5 pt-4">
-        <div className="mb-4 flex items-center gap-2">
-          <Newspaper className="h-5 w-5 text-gray-600" />
+        <div className="mb-4 flex items-center gap-1">
           <h3 className="text-lg font-bold text-gray-800">{region?.nameKo || '지역'} 뉴스</h3>
           {newsData.totalElements !== undefined && (
             <span className="text-sm text-gray-500">({newsData.totalElements}건)</span>
           )}
         </div>
 
-        <div className="space-y-4">
-          {newsData.items.map((article) => (
-            <div key={article.newsId} className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-              {/* 제목과 이벤트 카테고리 */}
-              <div className="mb-2 flex items-start gap-2">
-                {article.event && (
-                  <span
-                    className={`mt-1 shrink-0 rounded-full border px-2 py-1 text-xs font-medium ${getEventColor(
-                      article.event
-                    )}`}
-                  >
-                    {getEventLabel(article.event)}
-                  </span>
-                )}
+        <div className="space-y-0">
+          {newsData.items.map((article, index) => (
+            <div key={article.newsId}>
+              <div className="flex gap-3 rounded-lg bg-white px-2 py-4">
+                {/* 아이콘 */}
+                <div className="flex-shrink-0">
+                  <BookAlert className="h-10 w-10 mt-1 text-black/40" strokeWidth={1} />
+                </div>
 
-                <h4 className="flex-1 text-base font-semibold text-gray-900 line-clamp-2">{article.title}</h4>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-base font-semibold text-gray-900 line-clamp-2 mb-1">{article.title}</h4>
+                  {article.publishedAt && (
+                    <div className="text-sm text-gray-500 line-clamp-1">{formatDate(article.publishedAt)}</div>
+                  )}
+                </div>
               </div>
-              {/* 발행 시간 */}
-              {article.publishedAt && <div className="text-sm text-gray-500">{formatDate(article.publishedAt)}</div>}
+              {/* 가로선 */}
+              {index < newsData.items.length - 1 && <div className="border-b border-gray-300"></div>}
             </div>
           ))}
         </div>

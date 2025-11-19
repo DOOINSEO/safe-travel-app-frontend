@@ -11,26 +11,28 @@ import {ArrowLeft, Home} from 'lucide-react';
  * <PageHeader title="내 정보" backPath="/" /> // 홈으로 이동
  */
 export default function PageHeader({title, backPath}) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleBackClick = () => {
-        navigate(backPath || -1); // backPath가 있으면 해당 경로로, 없으면 -1(이전 페이지)로 이동
-    };
+  const handleBackClick = () => {
+    navigate(backPath || -1); // backPath가 있으면 해당 경로로, 없으면 -1(이전 페이지)로 이동
+  };
 
-    return (<div className="h-[60px] border-b border-gray-200">
-            <div className="relative flex h-full items-center justify-between px-[25px]">
-                <button onClick={handleBackClick} aria-label="뒤로 가기" className="p-2">
-                    <ArrowLeft className="h-8 w-8 text-gray-700"/>
-                </button>
+  return (
+    <div className="h-[60px] border-b border-gray-200">
+      <div className="relative flex h-full items-center justify-between px-[15px]">
+        <button onClick={handleBackClick} aria-label="뒤로 가기" className="p-2">
+          <ArrowLeft className="h-6 w-6 text-gray-700" strokeWidth={1.5} />
+        </button>
 
-                {/* absolute 포지셔닝은 좌우 버튼 크기에 상관없이 제목을 완벽한 중앙에 위치시키는 기법입니다. */}
-                <h1 className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-base font-bold text-gray-800">
-                    {title}
-                </h1>
+        {/* absolute 포지셔닝은 좌우 버튼 크기에 상관없이 제목을 완벽한 중앙에 위치시키는 기법입니다. */}
+        <h1 className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-base font-bold text-gray-800">
+          {title}
+        </h1>
 
-                <button onClick={() => navigate('/')} aria-label="홈으로 가기" className="p-2">
-                    <Home className="h-8 w-8 text-gray-700"/>
-                </button>
-            </div>
-        </div>);
+        <button onClick={() => navigate('/')} aria-label="홈으로 가기" className="p-2">
+          <Home className="h-6 w-6 text-gray-700" strokeWidth={1.5} />
+        </button>
+      </div>
+    </div>
+  );
 }
