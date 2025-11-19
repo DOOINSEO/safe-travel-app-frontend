@@ -79,14 +79,14 @@ export const EDIT_LOCATIONS = [
 
 // 카테고리 목록
 export const CATEGORIES = [
-  {id: 0, name: '기상이변'},
-  {id: 1, name: '교통사고'},
-  {id: 2, name: '사기'},
-  {id: 3, name: '소매치기'},
-  {id: 4, name: '시설낙후'},
-  {id: 5, name: '흉기 난동'},
-  {id: 6, name: '화재'},
-  {id: 7, name: '기타'},
+  {id: 1, name: '기상이변'},
+  {id: 2, name: '교통사고'},
+  {id: 3, name: '사기'},
+  {id: 4, name: '소매치기'},
+  {id: 5, name: '시설낙후'},
+  {id: 6, name: '흉기 난동'},
+  {id: 7, name: '화재'},
+  {id: 8, name: '기타'},
 ];
 
 // 카테고리 목록 (선택 옵션 포함, 게시물 작성용)
