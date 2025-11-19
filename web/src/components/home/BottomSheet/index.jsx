@@ -2,7 +2,7 @@ import React from 'react';
 import SafetyReport from './SafetyReport';
 import SafetyNotice from './SafetyNotice';
 import BoardSection from './BoardSection';
-import OneClickBtn from '../../../assets/icons/OneClickBtn.svg';
+import EmergencyButton from '../../common/EmergencyButton';
 
 export default function BottomSheetContent() {
   return (
@@ -16,11 +16,9 @@ export default function BottomSheetContent() {
         </div>
       </div>
 
-      {/* 원클릭 버튼 - 바텀시트 하단 오른쪽 고정 */}
-      <div className="absolute bottom-4 right-4 z-50">
-        <button className="cursor-pointer transition-transform hover:scale-105" aria-label="원클릭 버튼">
-          <img src={OneClickBtn} alt="원클릭 버튼" className="w-auto h-auto" />
-        </button>
+      {/* 원클릭 비상 버튼 - 바텀시트 하단 오른쪽 고정 */}
+      <div className="absolute bottom-[170px] right-5 z-50">
+        <EmergencyButton />
       </div>
     </div>
   );
