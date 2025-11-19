@@ -1,15 +1,20 @@
 import apiClient from './apiClient';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || 'https://safeapplicationserver.onrender.com';
 
 const getImageUrl = (imagePath) => {
   if (imagePath.startsWith('http')) return imagePath;
   if (imagePath.startsWith('/')) {
     let normalizedPath = imagePath;
-    if (imagePath.toLowerCase().includes('/postimages/')) {
-      normalizedPath = imagePath.replace(/\/postimages\//gi, '/postImages/');
+
+    // postimages를 postImages로 정규화
+    if (normalizedPath.toLowerCase().includes('/postimages/')) {
+      normalizedPath = normalizedPath.replace(/\/postimages\//gi, '/postImages/');
     }
-    return `${API_BASE_URL}${normalizedPath}`;
+
+    // 이미지 전용 환경변수 사용
+    return `${IMAGE_BASE_URL}${normalizedPath}`;
   }
   return imagePath;
 };
@@ -191,8 +196,87 @@ export const deletePost = async (postId) => {
   await apiClient.delete(`/posts/${postId}`);
 };
 
-export const toggleLike = async (postId) => {
-  // TODO: 서버에 좋아요 API가 구현되면 추가
-  // 현재는 클라이언트에서만 상태 관리
-  return {postId, isLike: true};
+// 댓글 생성
+export const createComment = async (postId, content) => {
+  const response = await apiClient.post('/comments', {postId, content});
+  return response.data;
+};
+
+// 댓글 목록 조회
+export const getComments = async (postId) => {
+  const response = await apiClient.get(`/comments?postId=${postId}`);
+  return response.data || [];
+};
+
+// 댓글 수정
+export const updateComment = async (commentId, postId, content) => {
+  const response = await apiClient.put(`/comments/${commentId}`, {postId, content});
+  return response.data;
+};
+
+// 댓글 삭제
+export const deleteComment = async (commentId) => {
+  await apiClient.delete(`/comments/${commentId}`);
+};
+
+// 좋아요 조회 (내 추천 여부)
+export const getLikeStatus = async (postId) => {
+  try {
+    const response = await apiClient.get(`/likes?postId=${postId}`);
+    if (response.isSuccess && response.data !== undefined) {
+      return response.data; // true 또는 false
+    }
+    return false;
+  } catch (error) {
+    console.error('좋아요 조회 실패:', error);
+    return false;
+  }
+};
+
+// 좋아요 생성
+export const createLike = async (postId, userId = null) => {
+  try {
+    const body = {postId: postId};
+    if (userId) {
+      body.userId = userId;
+    }
+    const response = await apiClient.post('/likes', body);
+    if (response.isSuccess) {
+      return response.data;
+    }
+    throw new Error(response.message || '좋아요 생성에 실패했습니다.');
+  } catch (error) {
+    console.error('좋아요 생성 실패:', error);
+    throw error;
+  }
+};
+
+// 좋아요 삭제
+export const deleteLike = async (postId) => {
+  try {
+    await apiClient.delete(`/likes?postId=${postId}`);
+  } catch (error) {
+    console.error('좋아요 삭제 실패:', error);
+    throw error;
+  }
+};
+
+// 좋아요 토글 (생성/삭제)
+export const toggleLike = async (postId, currentIsLike) => {
+  try {
+    if (currentIsLike) {
+      // 이미 좋아요가 있으면 삭제
+      await deleteLike(postId);
+      return {postId, isLike: false};
+    } else {
+      // 좋아요가 없으면 생성
+      const userId = localStorage.getItem('userId');
+      const result = await createLike(postId, userId ? parseInt(userId, 10) : null);
+      // API 응답에서 현재 상태를 확인
+      return {postId, isLike: true};
+    }
+  } catch (error) {
+    console.error('좋아요 토글 실패:', error);
+    throw error;
+  }
 };

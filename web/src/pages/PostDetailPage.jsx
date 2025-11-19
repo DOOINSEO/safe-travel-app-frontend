@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import CommentSection from '../components/board/CommentSection';
@@ -6,8 +6,7 @@ import ConfirmModal from '../components/common/ConfirmModal';
 import PostHeader from '../components/board/detail/PostHeader';
 import PostContentView from '../components/board/detail/PostContentView';
 import {Frown, Send} from 'lucide-react';
-import {DUMMY_COMMENTS} from '../data/dummyData';
-import {getPost, deletePost} from '../services/postApi';
+import {getPost, deletePost, createComment, getComments, updateComment, deleteComment, toggleLike} from '../services/postApi';
 import {usePostEdit} from '../hooks/usePostEdit';
 
 export default function PostDetailPage() {
@@ -15,10 +14,8 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  const initialComments = useMemo(() => DUMMY_COMMENTS.filter((c) => c.postId === parseInt(postId, 10)), [postId]);
-
   const [post, setPost] = useState(null);
-  const [comments, setComments] = useState(initialComments);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,9 +50,9 @@ export default function PostDetailPage() {
     }
   }, []);
 
-  // 게시물 상세 조회 API 호출
+  // 게시물 상세 조회 및 댓글 목록 조회 API 호출
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchData = async () => {
       if (!postId) {
         setIsLoading(false);
         setError('게시물 ID가 없습니다.');
@@ -65,18 +62,19 @@ export default function PostDetailPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const post = await getPost(postId);
-        setPost(post);
+        const [postData, commentsData] = await Promise.all([getPost(postId), getComments(postId)]);
+        setPost(postData);
+        setComments(commentsData);
       } catch (err) {
-        console.error('게시물 조회 실패:', err);
-        setError(err.message || '게시물을 불러오는데 실패했습니다.');
+        console.error('데이터 조회 실패:', err);
+        setError(err.message || '데이터를 불러오는데 실패했습니다.');
         setPost(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPost();
+    fetchData();
   }, [postId]);
 
   // 로딩 중
@@ -107,29 +105,39 @@ export default function PostDetailPage() {
 
   const isOwner = currentUserId && post.userId === currentUserId;
 
-  const handleLikeToggle = () => {
-    setPost((prev) => {
-      const newIsLike = !prev.isLike;
-      return {
-        ...prev,
-        isLike: newIsLike,
-        likeCount: newIsLike ? prev.likeCount + 1 : prev.likeCount - 1,
-      };
-    });
+  const handleLikeToggle = async () => {
+    if (!post) return;
+    
+    try {
+      const currentIsLike = post.isLike;
+      await toggleLike(post.postId, currentIsLike);
+      
+      // 성공 시 UI 업데이트
+      setPost((prev) => {
+        const newIsLike = !prev.isLike;
+        return {
+          ...prev,
+          isLike: newIsLike,
+          likeCount: newIsLike ? prev.likeCount + 1 : prev.likeCount - 1,
+        };
+      });
+    } catch (err) {
+      console.error('좋아요 토글 실패:', err);
+      setError(err.message || '좋아요 처리에 실패했습니다.');
+    }
   };
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (newComment.trim() === '') return;
-    const newCommentData = {
-      commentId: Math.random(),
-      postId: post.postId,
-      userId: currentUserId || 0,
-      userNickname: 'CurrentUser',
-      content: newComment,
-      createdAt: new Date().toISOString(),
-    };
-    setComments((prev) => [...prev, newCommentData]);
-    setNewComment('');
+    if (newComment.trim() === '' || !post) return;
+
+    try {
+      const newCommentData = await createComment(post.postId, newComment.trim());
+      setComments((prev) => [...prev, newCommentData]);
+      setNewComment('');
+    } catch (err) {
+      console.error('댓글 작성 실패:', err);
+      setError(err.message || '댓글 작성에 실패했습니다.');
+    }
   };
 
   const handleDeletePost = async () => {
@@ -137,9 +145,9 @@ export default function PostDetailPage() {
 
     try {
       setError(null);
-      
+
       await deletePost(post.postId);
-      
+
       // 성공 시 게시판으로 이동
       setIsDeleteModalOpen(false);
       navigate('/board');
@@ -180,9 +188,7 @@ export default function PostDetailPage() {
         <div className="p-4">
           <PostHeader post={post} />
           {error && (
-            <div className="mb-4 rounded-md border border-red-400 bg-red-100 p-3 text-sm text-red-700">
-              {error}
-            </div>
+            <div className="mb-4 rounded-md border border-red-400 bg-red-100 p-3 text-sm text-red-700">{error}</div>
           )}
           <PostContentView
             post={post}
@@ -194,7 +200,14 @@ export default function PostDetailPage() {
             editHandlers={editHandlers}
             fileInputRef={fileInputRef}
           />
-          <CommentSection comments={comments} setComments={setComments} currentUserId={currentUserId} />
+          <CommentSection
+            comments={comments}
+            setComments={setComments}
+            currentUserId={currentUserId}
+            postId={post.postId}
+            onUpdateComment={updateComment}
+            onDeleteComment={deleteComment}
+          />
         </div>
       </main>
       <footer className="border-t bg-white p-2">

@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import FilterBar from '../../../board/FilterBar';
 import PostItem from '../../../board/PostItem';
 import FloatingWriteButton from '../../../board/FloatingWriteButton';
-import {getPosts} from '../../../../services/postApi';
+import {getPosts, toggleLike} from '../../../../services/postApi';
 
 /**
  * 지도 바텀시트 내부에 표시될 게시판 컨텐츠 컴포넌트입니다.
@@ -28,20 +28,33 @@ export default function BoardContent({region}) {
   };
 
   // 게시글 추천 상태를 토글하는 함수
-  const handleLikeToggle = (postId) => {
-    setPosts((currentPosts) =>
-      currentPosts.map((p) => {
-        if (p.postId === postId) {
-          const newIsLike = !p.isLike;
-          return {
-            ...p,
-            isLike: newIsLike,
-            likeCount: newIsLike ? p.likeCount + 1 : p.likeCount - 1,
-          };
-        }
-        return p;
-      })
-    );
+  const handleLikeToggle = async (postId) => {
+    const targetPost = posts.find((p) => p.postId === postId);
+    if (!targetPost) return;
+
+    const currentIsLike = targetPost.isLike;
+
+    try {
+      await toggleLike(postId, currentIsLike);
+      
+      // 성공 시 UI 업데이트
+      setPosts((currentPosts) =>
+        currentPosts.map((p) => {
+          if (p.postId === postId) {
+            const newIsLike = !p.isLike;
+            return {
+              ...p,
+              isLike: newIsLike,
+              likeCount: newIsLike ? p.likeCount + 1 : p.likeCount - 1,
+            };
+          }
+          return p;
+        })
+      );
+    } catch (error) {
+      console.error('좋아요 토글 실패:', error);
+      // 에러 발생 시 사용자에게 알림 (선택사항)
+    }
   };
 
   // 게시물 목록 조회 API 호출 (지역 기반)

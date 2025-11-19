@@ -16,7 +16,7 @@ export default function SafetyReport() {
         />
         <div className="text-right">
           <h2 className="font-medium text-black/50">현재위치</h2>
-          <span className="text-xl font-bold">대한민국 서울특별시</span>
+          <span className="text-xl font-bold">프놈펜</span>
         </div>
       </div>
 
