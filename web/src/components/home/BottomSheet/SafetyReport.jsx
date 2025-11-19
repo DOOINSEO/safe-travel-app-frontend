@@ -1,9 +1,46 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import IconRobot from '../../../assets/icons/icon-robot.svg';
 import BubbleIcon from '../../../assets/icons/bubble.svg';
+import {getRiskByRegion} from '../../../services/riskApi';
+
+// 프놈펜 regionCode (GPS 연결 전 예시 데이터)
+const PHNOM_PENH_REGION_CODE = 'KHM-12';
 
 export default function SafetyReport() {
   const [isOpen, setIsOpen] = useState(false);
+  const [riskData, setRiskData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 로봇 아이콘 클릭 시 API 호출
+  useEffect(() => {
+    if (isOpen && !riskData && !loading) {
+      const fetchRiskData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
+          if (response.isSuccess && response.data) {
+            setRiskData(response.data);
+          } else {
+            setError('데이터를 불러오는데 실패했습니다.');
+          }
+        } catch (err) {
+          console.error('위험도 평가 조회 실패:', err);
+          setError('데이터를 불러오는데 실패했습니다.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchRiskData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const handleRobotClick = () => {
+    setIsOpen(!isOpen);
+  };
+
 
   return (
     <div>
@@ -12,7 +49,7 @@ export default function SafetyReport() {
           src={IconRobot}
           alt="로봇아이콘"
           className="w-14 h-14 mt-2 ml-2 cursor-pointer"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleRobotClick}
         />
         <div className="text-right">
           <h2 className="font-medium text-black/50">현재위치</h2>
@@ -25,7 +62,13 @@ export default function SafetyReport() {
         <img src={BubbleIcon} alt="말풍선" className="w-full" />
         <div className="absolute inset-0 flex items-center justify-start pt-9 p-6">
           <p className="text-left text-sm text-gray-800">
-            현재 위치의 안전 단계는 <span className="font-bold">여행자제</span>입니다.{' '}
+            현재 위치의 안전 단계는{' '}
+            {riskData?.riskLevel ? (
+              <span className="font-bold">{riskData.riskLevel}</span>
+            ) : (
+              <span className="font-bold">-</span>
+            )}
+            입니다.{' '}
           </p>
         </div>
       </div>
@@ -37,11 +80,17 @@ export default function SafetyReport() {
         {/* 텍스트 박스 섹션 */}
         <div className="bg-white rounded-3xl shadow-[0_0_4px_rgba(0,0,0,0.25)] p-5 m-1">
           <h3 className="text-sm font-bold mb-1">안전리포트</h3>
-          <p className="text-sm text-gray-800 leading-snug">
-            여기에 AI에게 받은 텍스트 내용이 들어갑니다. 내용이 길어지면 자동으로 아래로 늘어납니다.내용이 길어지면
-            자동으로 아래로 늘어납니다.내용이 길어지면 자동으로 아래로 늘어납니다.내용이 길어지면 자동으로 아래로
-            늘어납니다.내용이 길어지면 자동으로 아래로 늘어납니다.내용이 길어지면 자동으로 아래로 늘어납니다.
-          </p>
+          {loading ? (
+            <p className="text-sm text-gray-800 leading-snug">데이터를 불러오는 중...</p>
+          ) : error ? (
+            <p className="text-sm text-red-600 leading-snug">{error}</p>
+          ) : riskData?.resultContext ? (
+            <p className="text-sm text-gray-800 leading-snug">{riskData.resultContext}</p>
+          ) : (
+            <p className="text-sm text-gray-800 leading-snug">
+              로봇 아이콘을 클릭하여 안전 리포트를 확인하세요.
+            </p>
+          )}
         </div>
       </div>
     </div>
