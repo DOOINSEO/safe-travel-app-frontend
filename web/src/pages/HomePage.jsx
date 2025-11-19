@@ -4,6 +4,7 @@ import Header from '../components/home/Header';
 import IconMenu from '../components/home/IconMenu';
 import BottomSheetContent from '../components/home/BottomSheet';
 import {getRiskByRegion} from '../services/riskApi';
+import {useNotificationPopup} from '../hooks/useNotificationPopup';
 
 // 프놈펜 regionCode (GPS 연결 전 예시 데이터)
 const PHNOM_PENH_REGION_CODE = 'KHM-12';
@@ -11,7 +12,7 @@ const PHNOM_PENH_REGION_CODE = 'KHM-12';
 // Risk level에 따른 그라데이션 색상 매핑
 const GRADIENT_COLORS = {
   level1: '#00EEFF', // 1단계: 기본 파란색
-  level2: '#FFBF00', // 2단계: 노란색
+  level2: '#ffc519ff', // 2단계: 노란색
   level3: '#FF6047', // 3단계: 빨간색
   level4: '#585858', // 4단계: 회색
   default: '#00EEFF', // 기본값: 파란색
@@ -70,6 +71,9 @@ export default function HomePage() {
 
     fetchRiskLevel();
   }, []);
+
+  // 10초마다 알림 팝업 표시
+  useNotificationPopup(10);
 
   return (
     <div
