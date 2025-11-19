@@ -1,17 +1,18 @@
 import React from 'react';
 
-// 여행 안전 단계 임시값
-// 1. safe (여행유의) - 파란색
-// 2. caution (여행자제) - 노란색
-// 3. warning (철수권고) - 빨간색
-// 4. danger (여행금지) - 검은색
+// 여행 안전 단계
+// level1 (1단계: 여행유의) - 초록색
+// level2 (2단계: 여행자제) - 노란색
+// level3 (3단계: 출국권고, 특별여행주의보) - 빨간색
+// level4 (4단계: 여행금지) - 검은색
 
 const SAFETY_BADGE_STYLES = {
+  // 기존 호환성 유지
   safe: {
-    dot: 'bg-blue-500',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    text: 'text-blue-700',
+    dot: 'bg-green-500',
+    bg: 'bg-green-50',
+    border: 'border-green-200',
+    text: 'text-green-700',
     label: '여행유의',
   },
   caution: {
@@ -26,7 +27,7 @@ const SAFETY_BADGE_STYLES = {
     bg: 'bg-red-50',
     border: 'border-red-200',
     text: 'text-red-700',
-    label: '철수권고',
+    label: '출국권고',
   },
   danger: {
     dot: 'bg-black',
@@ -35,10 +36,39 @@ const SAFETY_BADGE_STYLES = {
     text: 'text-gray-900',
     label: '여행금지',
   },
+  // 안전단계별 배지 (폴리곤 색상과 동일)
+  level1: {
+    dot: 'bg-green-500',
+    bg: 'bg-green-50',
+    border: 'border-green-200',
+    text: 'text-green-700',
+    label: '여행유의',
+  },
+  level2: {
+    dot: 'bg-yellow-500',
+    bg: 'bg-yellow-50',
+    border: 'border-yellow-200',
+    text: 'text-yellow-700',
+    label: '여행자제',
+  },
+  level3: {
+    dot: 'bg-red-500',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
+    text: 'text-red-700',
+    label: '출국권고',
+  },
+  level4: {
+    dot: 'bg-black',
+    bg: 'bg-gray-50',
+    border: 'border-gray-300',
+    text: 'text-gray-900',
+    label: '여행금지',
+  },
 };
 
-export default function SafetyBadge({level = 'safe', showLevel = false}) {
-  const style = SAFETY_BADGE_STYLES[level] || SAFETY_BADGE_STYLES.safe;
+export default function SafetyBadge({level = 'level2', showLevel = false}) {
+  const style = SAFETY_BADGE_STYLES[level] || SAFETY_BADGE_STYLES.level2;
 
   return (
     <div

@@ -53,21 +53,8 @@ const mapOptions = {
 };
 
 // 지역 단위 폴리곤 (캄보디아)
-const convertedPolygons = convertGADMToPolygons(gadmData);
-
-// 임시 안전 등급
-const safetyLevelMap = {
-  프놈펜: 'safe',
-  칸달: 'caution',
-  시아누크빌: 'warning',
-  바탐방: 'danger',
-};
-
-// 지역 단위 폴리곤에 안전 등급 적용
-const regionPolygons = convertedPolygons.map((polygon) => ({
-  ...polygon,
-  level: safetyLevelMap[polygon.nameKo] || 'safe',
-}));
+// convertGADMToPolygons에서 이미 안전단계에 따른 level이 설정됨
+const regionPolygons = convertGADMToPolygons(gadmData);
 
 // 국가 단위 폴리곤
 const countryPolygons = convertWorldToPolygons(customGeoData).map((polygon) => ({

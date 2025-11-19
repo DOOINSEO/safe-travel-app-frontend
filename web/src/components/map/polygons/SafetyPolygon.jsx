@@ -13,38 +13,33 @@ const DEFAULT_STYLES = {
     strokeWeight: 0,
   },
   warning: {
-    fillColor: '#FF9800',
-    fillOpacity: 0.15,
-    strokeWeight: 0,
-  },
-  danger: {
     fillColor: '#F44336',
     fillOpacity: 0.15,
     strokeWeight: 0,
   },
-  // 5단계 색상 시스템
+  danger: {
+    fillColor: '#282828ff',
+    fillOpacity: 0.15,
+    strokeWeight: 0,
+  },
+  // 안전단계별 색상 시스템
   level1: {
     fillColor: '#4CAF50', // 초록색 (1단계)
     fillOpacity: 0.2,
     strokeWeight: 0,
   },
   level2: {
-    fillColor: '#8BC34A', // 연두색 (2단계)
+    fillColor: '#FFC107', // 노란색 (2단계: 여행자제)
     fillOpacity: 0.2,
     strokeWeight: 0,
   },
   level3: {
-    fillColor: '#FFC107', // 노란색 (3단계)
+    fillColor: '#F44336', // 빨간색 (3단계: 출국권고, 특별여행주의보)
     fillOpacity: 0.2,
     strokeWeight: 0,
   },
   level4: {
-    fillColor: '#FF9800', // 주황색 (4단계)
-    fillOpacity: 0.2,
-    strokeWeight: 0,
-  },
-  level5: {
-    fillColor: '#F44336', // 빨간색 (5단계)
+    fillColor: '#282828', // 검은색 (4단계: 여행금지)
     fillOpacity: 0.2,
     strokeWeight: 0,
   },
@@ -80,7 +75,7 @@ const SELECTED_STYLES = {
     strokeWeight: 3,
     strokeOpacity: 1,
   },
-  // 5단계 색상 시스템 (선택 시)
+  // 안전단계별 색상 시스템 (선택 시)
   level1: {
     fillColor: '#4CAF50',
     fillOpacity: 0.5,
@@ -89,41 +84,34 @@ const SELECTED_STYLES = {
     strokeOpacity: 1,
   },
   level2: {
-    fillColor: '#8BC34A',
-    fillOpacity: 0.5,
-    strokeColor: '#689F38',
-    strokeWeight: 3,
-    strokeOpacity: 1,
-  },
-  level3: {
     fillColor: '#FFC107',
     fillOpacity: 0.5,
     strokeColor: '#F57F17',
     strokeWeight: 3,
     strokeOpacity: 1,
   },
-  level4: {
-    fillColor: '#FF9800',
-    fillOpacity: 0.5,
-    strokeColor: '#E65100',
-    strokeWeight: 3,
-    strokeOpacity: 1,
-  },
-  level5: {
+  level3: {
     fillColor: '#F44336',
     fillOpacity: 0.5,
     strokeColor: '#B71C1C',
     strokeWeight: 3,
     strokeOpacity: 1,
   },
+  level4: {
+    fillColor: '#282828',
+    fillOpacity: 0.5,
+    strokeColor: '#000000',
+    strokeWeight: 3,
+    strokeOpacity: 1,
+  },
 };
 
 export default function SafetyPolygon({data, onClick, isSelected = false}) {
-  const level = data.level || 'level1';
+  const level = data.level || 'level2';
 
   const polygonStyle = isSelected
-    ? SELECTED_STYLES[level] || SELECTED_STYLES.level1
-    : DEFAULT_STYLES[level] || DEFAULT_STYLES.level1;
+    ? SELECTED_STYLES[level] || SELECTED_STYLES.level2
+    : DEFAULT_STYLES[level] || DEFAULT_STYLES.level2;
 
   const handleClick = () => {
     onClick?.(data);

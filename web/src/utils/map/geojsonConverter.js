@@ -1,6 +1,6 @@
 // GeoJSON을 폴리곤 배열로 변환
 
-import {CAMBODIA_REGIONS} from '../../data/regionData';
+import {CAMBODIA_REGIONS, getSafetyLevel} from '../../data/regionData';
 
 export function convertGADMToPolygons(geojson) {
   if (!geojson || !geojson.features) {
@@ -36,11 +36,16 @@ export function convertGADMToPolygons(geojson) {
     const regionId = properties.GID_1 || `region-${index}`;
     const regionData = CAMBODIA_REGIONS.find((r) => r.id === regionId);
 
+    // 안전단계에 따라 level 설정
+    const safetyStage = regionData?.safetyStage || 2; // 기본값: 2단계
+    const level = getSafetyLevel(safetyStage);
+
     return {
       id: regionId,
       name: regionData?.name || properties.NAME_1 || `Region ${index}`, // 영문 이름
       nameKo: regionData?.nameKo || properties.NAME_1 || `Region ${index}`, // 한국어 이름
-      level: 'safe', // 안전단계(기본값)
+      level, // 안전단계에 따른 level (level1, level2, level3, level4)
+      safetyStage, // 안전단계 (1, 2, 3, 4)
       coordinates, // 좌표
       // 원본 데이터도
       originalProperties: {
