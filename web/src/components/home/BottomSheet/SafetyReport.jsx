@@ -12,30 +12,29 @@ export default function SafetyReport() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 로봇 아이콘 클릭 시 API 호출
+  // 페이지 진입 시 자동으로 API 호출
   useEffect(() => {
-    if (isOpen && !riskData && !loading) {
-      const fetchRiskData = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
-          if (response.isSuccess && response.data) {
-            setRiskData(response.data);
-          } else {
-            setError('데이터를 불러오는데 실패했습니다.');
-          }
-        } catch (err) {
-          console.error('위험도 평가 조회 실패:', err);
+    const fetchRiskData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
+        if (response.isSuccess && response.data) {
+          setRiskData(response.data);
+        } else {
           setError('데이터를 불러오는데 실패했습니다.');
-        } finally {
-          setLoading(false);
         }
-      };
-      fetchRiskData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+      } catch (err) {
+        console.error('위험도 평가 조회 실패:', err);
+        setError('데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // 컴포넌트 마운트 시 자동 조회
+    fetchRiskData();
+  }, []);
 
   const handleRobotClick = () => {
     setIsOpen(!isOpen);
