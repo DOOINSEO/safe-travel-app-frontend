@@ -40,7 +40,6 @@ export default function SafetyReport() {
     setIsOpen(!isOpen);
   };
 
-
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -86,9 +85,7 @@ export default function SafetyReport() {
           ) : riskData?.resultContext ? (
             <p className="text-sm text-gray-800 leading-snug">{riskData.resultContext}</p>
           ) : (
-            <p className="text-sm text-gray-800 leading-snug">
-              로봇 아이콘을 클릭하여 안전 리포트를 확인하세요.
-            </p>
+            <p className="text-sm text-gray-800 leading-snug">로봇 아이콘을 클릭하여 안전 리포트를 확인하세요.</p>
           )}
         </div>
       </div>

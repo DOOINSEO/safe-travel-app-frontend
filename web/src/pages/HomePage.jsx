@@ -3,11 +3,38 @@ import {Sheet} from 'react-modal-sheet';
 import Header from '../components/home/Header';
 import IconMenu from '../components/home/IconMenu';
 import BottomSheetContent from '../components/home/BottomSheet';
+import {getRiskByRegion} from '../services/riskApi';
+
+// 프놈펜 regionCode (GPS 연결 전 예시 데이터)
+const PHNOM_PENH_REGION_CODE = 'KHM-12';
+
+// Risk level에 따른 그라데이션 색상 매핑
+const GRADIENT_COLORS = {
+  level1: '#00EEFF', // 1단계: 기본 파란색
+  level2: '#FFBF00', // 2단계: 노란색
+  level3: '#FF6047', // 3단계: 빨간색
+  level4: '#585858', // 4단계: 회색
+  default: '#00EEFF', // 기본값: 파란색
+};
+
+const parseRiskLevel = (riskLevel) => {
+  if (!riskLevel) return 'default';
+
+  const levelStr = riskLevel.toUpperCase();
+
+  if (levelStr === 'LOW') return 'level1';
+  if (levelStr === 'MODERATE') return 'level2';
+  if (levelStr === 'HIGH') return 'level3';
+  if (levelStr === 'EXTREME') return 'level4';
+
+  return 'default';
+};
 
 export default function HomePage() {
   const [open, setOpen] = useState(true);
   const [snapPoints, setSnapPoints] = useState([0, 0.84, 1]);
   const [initialSnap] = useState(1);
+  const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS.default);
 
   const iconMenuRef = useRef(null);
 
@@ -27,8 +54,28 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', calculateSnapPoints);
   }, []);
 
+  // Risk level 조회하여 그라데이션 색상 설정
+  useEffect(() => {
+    const fetchRiskLevel = async () => {
+      try {
+        const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
+        if (response.isSuccess && response.data?.riskLevel) {
+          const level = parseRiskLevel(response.data.riskLevel);
+          setGradientColor(GRADIENT_COLORS[level] || GRADIENT_COLORS.default);
+        }
+      } catch (err) {
+        console.error('위험도 평가 조회 실패:', err);
+      }
+    };
+
+    fetchRiskLevel();
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-[#00EEFF]">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{background: `linear-gradient(to bottom, white, ${gradientColor})`}}
+    >
       <Header />
       <div ref={iconMenuRef}>
         <IconMenu />
