@@ -3,7 +3,7 @@ import React from 'react';
 export default function TabMenu({activeTab, onTabChange}) {
   const tabs = [
     {id: 'news', label: '뉴스'},
-    {id: 'board', label: '게시판'},
+    {id: 'board', label: '안전 게시판'},
     {id: 'info', label: '정보'},
   ];
 

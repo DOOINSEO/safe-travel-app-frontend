@@ -14,7 +14,7 @@ const GRADIENT_COLORS = {
   level1: '#00EEFF', // 1단계: 기본 파란색
   level2: '#ffc519ff', // 2단계: 노란색
   level3: '#FF6047', // 3단계: 빨간색
-  level4: '#585858', // 4단계: 회색
+  level4: '#828282ff', // 4단계: 회색
   default: '#00EEFF', // 기본값: 파란색
 };
 
@@ -33,7 +33,7 @@ const parseRiskLevel = (riskLevel) => {
 
 export default function HomePage() {
   const [open, setOpen] = useState(true);
-  const [snapPoints, setSnapPoints] = useState([0, 0.84, 1]);
+  const [snapPoints, setSnapPoints] = useState([0, 0.88, 1]);
   const [initialSnap] = useState(1);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS.default);
 
@@ -45,8 +45,9 @@ export default function HomePage() {
         const iconMenuBottom = iconMenuRef.current.getBoundingClientRect().bottom;
         const viewportHeight = window.innerHeight;
         const defaultSnap = (viewportHeight - iconMenuBottom) / viewportHeight;
+        const adjustedSnap = Math.min(defaultSnap + 0.02, 0.95);
 
-        setSnapPoints([0, defaultSnap, 1]);
+        setSnapPoints([0, adjustedSnap, 1]);
       }
     };
 

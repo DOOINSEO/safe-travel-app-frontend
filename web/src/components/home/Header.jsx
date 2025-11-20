@@ -7,7 +7,7 @@ export default function Header() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between p-[20px]">
+    <div className="flex items-center justify-between p-4 py-3">
       <div className="flex items-center">
         <img src={Logo} alt="Logo" className="p-2" />
       </div>

@@ -5,7 +5,7 @@ import IconMessage from '../../assets/icons/icon-message.svg';
 import IconBoard from '../../assets/icons/icon-board.svg';
 import IconPictogram from '../../assets/icons/icon-pictogram.svg';
 
-function MenuItem({icon, label, onClick}) {
+function MenuItem({icon, label, onClick, iconSize = 'w-8 h-8'}) {
   return (
     <div
       className="flex flex-col items-center gap-2 flex-1 cursor-pointer"
@@ -20,7 +20,7 @@ function MenuItem({icon, label, onClick}) {
       }}
     >
       <div className="w-[54px] h-[54px] flex items-center justify-center rounded-[16px] shadow-[0_0_5px_rgba(0,0,0,0.1)] bg-white">
-        <img src={icon} alt={label} className="w-8 h-8" />
+        <img src={icon} alt={label} className={iconSize} />
       </div>
       <span className="text-[12px] font-medium text-black/60">{label}</span>
     </div>
@@ -32,15 +32,21 @@ export default function IconMenu() {
 
   const menuItems = [
     {icon: IconMap, label: '안전 지도', path: '/map'},
-    {icon: IconMessage, label: '자동 문자 작성', path: '/mypage'},
-    {icon: IconBoard, label: '안전 게시판', path: '/board'},
+    {icon: IconBoard, label: '안전 게시판', path: '/board', iconSize: 'w-10 h-10'},
+    {icon: IconMessage, label: '원클릭 문자 등록', path: '/mypage'},
     {icon: IconPictogram, label: '픽토그램', path: '/pictogram'},
   ];
 
   return (
     <div className="flex items-center justify-between w-full px-[15px]">
       {menuItems.map((item, index) => (
-        <MenuItem key={index} icon={item.icon} label={item.label} onClick={() => navigate(item.path)} />
+        <MenuItem
+          key={index}
+          icon={item.icon}
+          label={item.label}
+          onClick={() => navigate(item.path)}
+          iconSize={item.iconSize}
+        />
       ))}
     </div>
   );
