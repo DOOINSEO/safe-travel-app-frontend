@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import PageHeader from '../components/common/PageHeader';
-import UserProfileSection from '../components/mypage/UserProfileSection';
 import EmergencySetupSection from '../components/mypage/EmergencySetupSection';
 import MessageEditor from '../components/mypage/MessageEditor';
 import ContactInput from '../components/mypage/ContactList';
@@ -138,7 +137,7 @@ export default function MyPage() {
   if (isInitialLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <PageHeader title="내 정보" backPath="/" />
+        <PageHeader title="원클릭 문자 등록" backPath="/" />
         <div className="flex h-64 items-center justify-center">
           <p>데이터를 불러오는 중...</p>
         </div>
@@ -148,11 +147,9 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <PageHeader title="내 정보" backPath="/" />
-      <UserProfileSection userName={nickname || '사용자'} />
-      <div className="border-b border-gray-200" />
+      <PageHeader title="원클릭 문자 등록" backPath="/" />
 
-      <main className="flex flex-col px-[20px] pt-5 pb-8">
+      <main className="flex flex-col px-[20px] pt-5">
         <EmergencySetupSection />
         <MessageEditor emergencyMessage={emergencyMessage} setEmergencyMessage={setEmergencyMessage} />
         <ContactInput phone={emergencyPhone} onPhoneChange={setEmergencyPhone} />
@@ -177,6 +174,8 @@ export default function MyPage() {
             </button>
           </div>
         </div>
+
+        <div className="h-[15px]" />
       </main>
 
       <AlertModal

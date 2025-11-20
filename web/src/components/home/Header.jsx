@@ -16,7 +16,7 @@ export default function Header() {
         <button className="p-2 text-gray-800" onClick={() => navigate('/notification')}>
           <Bell className="h-6 w-6" strokeWidth={1.5} />
         </button>
-        <button className="p-2 text-gray-800" onClick={() => navigate('/mypage')}>
+        <button className="p-2 text-gray-800" onClick={() => navigate('/account')}>
           <UserCircle className="h-6 w-6" strokeWidth={1.5} />
         </button>
       </div>

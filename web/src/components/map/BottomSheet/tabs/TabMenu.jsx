@@ -14,7 +14,7 @@ export default function TabMenu({activeTab, onTabChange}) {
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`
-            flex-1 py-2 mx-9 text-[14px] font-medium
+            flex-1 py-2 mx-6 text-[14px] font-medium
             ${activeTab === tab.id ? 'text-[#00398b] border-b-2 border-[#00398b]' : 'text-[#5e5e5e]'}
           `}
         >

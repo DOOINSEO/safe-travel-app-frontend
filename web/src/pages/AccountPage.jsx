@@ -16,7 +16,7 @@ export default function AccountPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <PageHeader title="계정 관리" backPath="/mypage" />
+        <PageHeader title="계정 관리" backPath="/" />
         <div className="flex h-64 items-center justify-center">
           <p>사용자 정보를 불러오는 중...</p>
         </div>
@@ -26,7 +26,7 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <PageHeader title="계정 관리" backPath="/mypage" />
+      <PageHeader title="계정 관리" backPath="/" />
 
       <main className="pt-[20px]">
         {error && (
