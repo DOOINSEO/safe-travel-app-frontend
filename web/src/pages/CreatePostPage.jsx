@@ -114,7 +114,7 @@ export default function CreatePostPage() {
   return (
     <div className="flex h-screen flex-col bg-white">
       <header>
-        <PageHeader title="게시물 작성하기" />
+        <PageHeader title="게시물 작성하기" backPath="/board"/>
       </header>
       <main className="flex-1 overflow-y-auto">
         <PostForm

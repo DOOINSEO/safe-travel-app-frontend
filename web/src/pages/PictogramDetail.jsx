@@ -25,7 +25,7 @@ export default function PictogramDetail() {
 
     return (
         <div className="min-h-screen bg-white">
-            <PageHeader title="픽토그램" />
+            <PageHeader title="픽토그램" backPath="/pictogram"/>
 
             <main className="flex flex-col gap-[25px] px-[20px]">
                 <LanguageSelector

@@ -81,7 +81,7 @@ export default function PostDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <PageHeader title="게시물 상세보기" />
+        <PageHeader title="게시물 상세보기" backPath="/board"/>
         <div className="flex h-64 items-center justify-center">
           <p className="text-gray-500">게시물을 불러오는 중...</p>
         </div>

@@ -5,7 +5,7 @@ import BoardContent from '../components/board/BoardContent';
 export default function BoardPage() {
     return (<div className="min-h-screen bg-gray-50">
             <header className="bg-white">
-                <PageHeader title="안전 게시판"/>
+                <PageHeader title="안전 게시판" backPath="/"/>
             </header>
 
             <main className="pb-20">
