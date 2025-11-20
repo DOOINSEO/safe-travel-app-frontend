@@ -43,7 +43,7 @@ export default function BoardContent() {
 
     try {
       await toggleLike(postId, currentIsLike);
-      
+
       // 성공 시 UI 업데이트
       setPosts((currentPosts) =>
         currentPosts.map((p) => {
@@ -100,13 +100,16 @@ export default function BoardContent() {
 
   return (
     <>
-      <LocationSelector onCountryChange={handleCountryChange} onRegionChange={handleRegionChange} />
-      <FilterBar
-        currentSort={filters.sort}
-        onSortChange={handleSortChange}
-        onCategoryToggle={handleCategoryToggle}
-        activeCategoryId={filters.categoryId}
-      />
+      {/* 스티키 고정 영역: LocationSelector + FilterBar */}
+      <div className="sticky top-[60px] z-20 bg-white">
+        <LocationSelector onCountryChange={handleCountryChange} onRegionChange={handleRegionChange} />
+        <FilterBar
+          currentSort={filters.sort}
+          onSortChange={handleSortChange}
+          onCategoryToggle={handleCategoryToggle}
+          activeCategoryId={filters.categoryId}
+        />
+      </div>
       <div className="flex flex-col">
         {isLoading ? (
           <div className="py-20 text-center text-gray-500">
