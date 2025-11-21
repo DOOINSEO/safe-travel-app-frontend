@@ -5,10 +5,8 @@ import MessageEditor from '../components/mypage/MessageEditor';
 import ContactInput from '../components/mypage/ContactList';
 import {getEmergency, createEmergency, updateEmergency, deleteEmergency} from '../services/accountApi';
 import AlertModal from '../components/common/AlertModal';
-import {saveEmergencyData, loadEmergencyData, clearEmergencyData} from '../utils/emergencyStorage';
 
 export default function MyPage() {
-  const [nickname, setNickname] = useState('');
   const [emergencyMessage, setEmergencyMessage] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,34 +23,14 @@ export default function MyPage() {
       try {
         setIsInitialLoading(true);
 
-        // 먼저 로컬 스토리지에서 불러오기
-        const localData = loadEmergencyData();
-        if (localData) {
-          setEmergencyMessage(localData.message || '');
-          setEmergencyPhone(localData.phone || '');
-        }
+        // DB에서 비상 연락망 데이터 조회
+        const response = await getEmergency();
+        const data = response?.data || response;
 
-        // 백엔드에서도 불러오기 (백엔드 연동 유지)
-        try {
-          const response = await getEmergency();
-          const data = response?.data || response;
-
-          if (data) {
-            setNickname(data.nickname || '');
-            // 백엔드 데이터가 있으면 우선 사용하고, 로컬에도 저장
-            if (data.message || data.phone) {
-              setEmergencyMessage(data.message || '');
-              setEmergencyPhone(data.phone || '');
-              saveEmergencyData(data.phone || '', data.message || '');
-              setHasExistingData(true);
-            } else if (localData && (localData.message || localData.phone)) {
-              setHasExistingData(true);
-            }
-          }
-        } catch (apiError) {
-          console.error('비상 연락망 API 조회 실패:', apiError);
-          // API 실패 시 로컬 데이터만 사용
-          if (localData && (localData.message || localData.phone)) {
+        if (data) {
+          if (data.message || data.phone) {
+            setEmergencyMessage(data.message || '');
+            setEmergencyPhone(data.phone || '');
             setHasExistingData(true);
           }
         }
@@ -79,22 +57,11 @@ export default function MyPage() {
         phone: emergencyPhone,
       };
 
-      // 로컬 스토리지에 저장
-      const localSaveResult = saveEmergencyData(emergencyPhone, emergencyMessage);
-      if (!localSaveResult.success) {
-        console.error('로컬 스토리지 저장 실패:', localSaveResult.error);
-      }
-
-      // 백엔드에도 저장 (백엔드 연동 유지)
-      try {
-        if (hasExistingData) {
-          await updateEmergency(data);
-        } else {
-          await createEmergency(data);
-        }
-      } catch (apiError) {
-        console.error('백엔드 저장 실패:', apiError);
-        // 백엔드 저장 실패해도 로컬에는 저장되었으므로 성공으로 처리
+      // DB에 저장
+      if (hasExistingData) {
+        await updateEmergency(data);
+      } else {
+        await createEmergency(data);
       }
 
       setHasExistingData(true);
@@ -111,16 +78,8 @@ export default function MyPage() {
     try {
       setIsLoading(true);
 
-      // 로컬 스토리지에서 삭제
-      clearEmergencyData();
-
-      // 백엔드에서도 삭제 (백엔드 연동 유지)
-      try {
-        await deleteEmergency();
-      } catch (apiError) {
-        console.error('백엔드 삭제 실패:', apiError);
-        // 백엔드 삭제 실패해도 로컬은 삭제되었으므로 계속 진행
-      }
+      // DB에서 삭제
+      await deleteEmergency();
 
       setEmergencyMessage('');
       setEmergencyPhone('');
