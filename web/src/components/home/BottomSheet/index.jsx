@@ -5,20 +5,23 @@ import SafetyNotice from './SafetyNotice';
 import BoardSection from './BoardSection';
 import EmergencyButton from '../../common/EmergencyButton';
 
-export default function BottomSheetContent() {
+export default function BottomSheetContent({riskData}) {
   return (
     <div className="flex flex-col h-full relative">
       {/* 스크롤 기반 */}
       <div className="flex-1 overflow-y-auto pb-20">
         <div className="flex flex-col">
           {/* Sticky 고정 영역 */}
-          <div className="sticky top-0 z-10 bg-white" style={{borderTopLeftRadius: '28px', borderTopRightRadius: '28px'}}>
+          <div
+            className="sticky top-0 z-10 bg-white"
+            style={{borderTopLeftRadius: '28px', borderTopRightRadius: '28px'}}
+          >
             <div className="p-4">
-              <SafetyReport />
+              <SafetyReport riskData={riskData} />
             </div>
-            <SafetyGauge />
+            <SafetyGauge riskData={riskData} />
           </div>
-          
+
           {/* 스크롤 가능한 컨텐츠 */}
           <div className="px-5 py-2">
             <SafetyNotice />

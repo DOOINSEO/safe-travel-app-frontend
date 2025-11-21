@@ -4,10 +4,11 @@ import Header from '../components/home/Header';
 import IconMenu from '../components/home/IconMenu';
 import BottomSheetContent from '../components/home/BottomSheet';
 import {getRiskByRegion} from '../services/riskApi';
-import {useNotificationPopup} from '../hooks/useNotificationPopup';
+import {initialNotifications} from '../data/notificationData';
+import {saveNotification} from '../utils/notificationStorage';
 
-// 프놈펜 regionCode (GPS 연결 전 예시 데이터)
-const PHNOM_PENH_REGION_CODE = 'KHM-12';
+// 초기 지역 (GPS 연결 전)
+const INITIAL_REGION_CODE = 'KHM-13';
 
 // Risk level에 따른 그라데이션 색상 매핑
 const GRADIENT_COLORS = {
@@ -36,6 +37,8 @@ export default function HomePage() {
   const [snapPoints, setSnapPoints] = useState([0, 0.88, 1]);
   const [initialSnap] = useState(1);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS.default);
+  const [riskData, setRiskData] = useState(null);
+  const [currentRegionCode, setCurrentRegionCode] = useState(INITIAL_REGION_CODE);
 
   const iconMenuRef = useRef(null);
 
@@ -56,14 +59,17 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', calculateSnapPoints);
   }, []);
 
-  // Risk level 조회하여 그라데이션 색상 설정
+  // Risk level 조회하여 그라데이션 색상 설정 및 하위 컴포넌트에 전달
   useEffect(() => {
     const fetchRiskLevel = async () => {
       try {
-        const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
-        if (response.isSuccess && response.data?.riskLevel) {
-          const level = parseRiskLevel(response.data.riskLevel);
-          setGradientColor(GRADIENT_COLORS[level] || GRADIENT_COLORS.default);
+        const response = await getRiskByRegion(currentRegionCode);
+        if (response.isSuccess && response.data) {
+          setRiskData(response.data);
+          if (response.data.riskLevel) {
+            const level = parseRiskLevel(response.data.riskLevel);
+            setGradientColor(GRADIENT_COLORS[level] || GRADIENT_COLORS.default);
+          }
         }
       } catch (err) {
         console.error('위험도 평가 조회 실패:', err);
@@ -71,10 +77,43 @@ export default function HomePage() {
     };
 
     fetchRiskLevel();
-  }, []);
+  }, [currentRegionCode]);
 
-  // 10초마다 알림 팝업 표시
-  useNotificationPopup(1000);
+  // 홈 화면 최초 접속 시 5초 후 id:1 알림 딱 한 번 표시 및 지역 코드 변경
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const notification = initialNotifications.find((n) => n.id === 1);
+
+      if (!notification) {
+        return;
+      }
+
+      // 지역 코드 KHM-12로 변경
+      setCurrentRegionCode('KHM-12');
+      saveNotification(notification);
+
+      if (typeof window !== 'undefined' && window.M && window.M.pop && window.M.pop.alert) {
+        // Morpheus 경고 팝업 표시
+        window.M.pop.alert({
+          title: notification.typeName || '알림',
+          message: notification.title,
+          buttons: ['확인'],
+          callback: function (index) {
+            console.log('알림 확인됨:', index);
+          },
+        });
+      } else {
+        // 개발 환경에서 Morpheus가 없을 경우 콘솔 로그
+        if (process.env.NODE_ENV === 'development' || import.meta.env?.MODE === 'development') {
+        }
+      }
+    }, 5000); // 5초 후 실행
+
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []); // 빈 배열로 최초 마운트 시 한 번만 실행
 
   return (
     <div
@@ -97,7 +136,7 @@ export default function HomePage() {
         >
           <Sheet.Header disableDrag style={{display: 'none'}} />
           <Sheet.Content style={{paddingBottom: 0}}>
-            <BottomSheetContent />
+            <BottomSheetContent riskData={riskData} />
           </Sheet.Content>
         </Sheet.Container>
       </Sheet>

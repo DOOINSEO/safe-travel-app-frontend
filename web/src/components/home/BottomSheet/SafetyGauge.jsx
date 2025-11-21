@@ -1,8 +1,4 @@
-import React, {useState, useEffect} from 'react';
-import {getRiskByRegion} from '../../../services/riskApi';
-
-// 프놈펜 regionCode (GPS 연결 전 예시 데이터)
-const PHNOM_PENH_REGION_CODE = 'KHM-12';
+import React from 'react';
 
 const RISK_LEVELS = ['LOW', 'MODERATE', 'HIGH', 'EXTREME'];
 
@@ -30,28 +26,7 @@ const getRiskLevelLabelColor = (index) => {
   return colors[index] || GRADIENT_COLORS.default;
 };
 
-export default function SafetyGauge() {
-  const [riskData, setRiskData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchRiskData = async () => {
-      setLoading(true);
-      try {
-        const response = await getRiskByRegion(PHNOM_PENH_REGION_CODE);
-        if (response.isSuccess && response.data) {
-          setRiskData(response.data);
-        }
-      } catch (err) {
-        console.error('위험도 평가 조회 실패:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRiskData();
-  }, []);
-
+export default function SafetyGauge({riskData}) {
   const currentIndex = riskData?.riskLevel ? getRiskLevelIndex(riskData.riskLevel) : 0;
   const fillPercentage = ((currentIndex + 1) / RISK_LEVELS.length) * 100;
 
